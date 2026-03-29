@@ -1,105 +1,146 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>RevStudy - Ambient</title>
-<style>
-body {
-    font-family: Arial;
-    text-align: center;
-    background: linear-gradient(to right, #d7ccc8, #a1887f);
-    opacity: 0;
-    transition: opacity 0.5s;
-}
+    <meta charset="UTF-8">
+    <title>RevStudy - Ambient Mode</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            font-family: 'Poppins', sans-serif;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            background-size: cover;
+            background-position: center;
+            transition: opacity 0.5s;
+            opacity: 0;
+        }
+        body.loaded { opacity: 1; }
 
-body.loaded { opacity: 1; }
+        h1 {
+            font-family: 'Pacifico', cursive;
+            font-size: 50px;
+            margin: 20px 0;
+        }
 
-.box {
-    background: rgba(255,255,255,0.9);
-    padding: 20px;
-    margin: 15px auto;
-    width: 320px;
-    border-radius: 12px;
-}
-</style>
+        /* Tabs */
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: rgba(0,0,0,0.5);
+            margin: 0 5px;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+        .tab.active {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* Content */
+        .tab-content {
+            display: none;
+            width: 90%;
+            max-width: 800px;
+            background: rgba(0,0,0,0.5);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Feature placeholders */
+        .feature-box {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+        }
+
+        button {
+            padding: 8px 15px;
+            margin-top: 10px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+        }
+
+    </style>
 </head>
-
 <body>
 
-<h1>🌿 Ambient Study</h1>
-<button onclick="goHome()">🏠 Home</button>
+<h1>🌌 RevStudy - Ambient Mode</h1>
 
-<div class="box">
-    <h3>📊 Future You Predictor</h3>
-    <input id="hours" placeholder="Hours studied">
-    <input id="accuracy" placeholder="Accuracy %">
-    <button onclick="predict()">Predict</button>
-    <p id="prediction"></p>
+<!-- Tabs -->
+<div class="tabs">
+    <div class="tab active" data-tab="1">Future-You</div>
+    <div class="tab" data-tab="2">Heatmap</div>
+    <div class="tab" data-tab="3">AI Questions</div>
+    <div class="tab" data-tab="4">Mistakes & Feedback</div>
+    <div class="tab" data-tab="5">Study Stats</div>
 </div>
 
-<div class="box">
-    <h3>🔥 Weakness Heatmap</h3>
-    <input id="topic" placeholder="Topic">
-    <input id="score" placeholder="Score %">
-    <button onclick="addHeat()">Add</button>
-    <ul id="heatmap"></ul>
+<!-- Tab Contents -->
+<div id="tab-1" class="tab-content active">
+    <div class="feature-box">📈 Future-You Predictor: Shows your projected progress over time.</div>
 </div>
-
-<div class="box">
-    <h3>🤖 AI Question Generator</h3>
-    <input id="topicQ" placeholder="Topic">
-    <button onclick="generateQ()">Generate</button>
-    <p id="question"></p>
+<div id="tab-2" class="tab-content">
+    <div class="feature-box">🗺️ Heatmap: Visual representation of your study patterns.</div>
 </div>
-
-<div class="box">
-    <h3>🧠 Mistake Analysis</h3>
-    <input id="mistake" placeholder="Your mistake">
-    <button onclick="analyze()">Analyze</button>
-    <p id="analysis"></p>
+<div id="tab-3" class="tab-content">
+    <div class="feature-box">❓ AI Question Creator: Generate personalized questions for practice.</div>
+</div>
+<div id="tab-4" class="tab-content">
+    <div class="feature-box">⚠️ Mistakes & Feedback: Track errors and receive AI suggestions.</div>
+</div>
+<div id="tab-5" class="tab-content">
+    <div class="feature-box">⏱️ Study Time Stats: Track total hours and focus sessions.</div>
 </div>
 
 <script>
-window.onload = function () {
-    document.body.classList.add("loaded");
-}
+// Fade in
 window.onload = () => document.body.classList.add("loaded");
 
-function goHome(){
-    document.body.classList.remove("loaded");
-    setTimeout(()=> window.location.href="index.html",300);
-}
+// Tabs logic
+const tabs = document.querySelectorAll(".tab");
+const contents = document.querySelectorAll(".tab-content");
 
-// Predictor
-function predict(){
-    let h = document.getElementById("hours").value;
-    let a = document.getElementById("accuracy").value;
-    let result = (h * a / 10).toFixed(1);
-    document.getElementById("prediction").textContent =
-        "Estimated score: " + result + "%";
-}
+tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+        tabs.forEach(t => t.classList.remove("active"));
+        tab.classList.add("active");
+        contents.forEach(c => c.classList.remove("active"));
+        document.getElementById("tab-" + tab.dataset.tab).classList.add("active");
+    });
+});
 
-// Heatmap
-function addHeat(){
-    let topic = document.getElementById("topic").value;
-    let score = document.getElementById("score").value;
-    let li = document.createElement("li");
-    li.textContent = topic + " → " + score + "%";
-    document.getElementById("heatmap").appendChild(li);
-}
+// AI Painting Backgrounds
+let aiBackgrounds = [
+  "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1470&q=80",
+  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1470&q=80",
+  "https://images.unsplash.com/photo-1521747116042-5a810fda9664?auto=format&fit=crop&w=1470&q=80",
+  "https://images.unsplash.com/photo-1491553895911-0055eca6402d?auto=format&fit=crop&w=1470&q=80",
+  "https://images.unsplash.com/photo-1535223289827-42f1e9919769?auto=format&fit=crop&w=1470&q=80"
+];
 
-// Question generator
-function generateQ(){
-    let topic = document.getElementById("topicQ").value;
-    document.getElementById("question").textContent =
-        "Explain the concept of " + topic;
+let bgIndex = 0;
+function changeBackground(){
+    document.body.style.backgroundImage = `url('${aiBackgrounds[bgIndex]}')`;
+    bgIndex = (bgIndex + 1) % aiBackgrounds.length;
 }
-
-// Mistake analysis
-function analyze(){
-    let text = document.getElementById("mistake").value;
-    document.getElementById("analysis").textContent =
-        "You should review this concept carefully: " + text;
-}
+changeBackground();
+setInterval(changeBackground, 20000); // change every 20s
 </script>
 
 </body>
