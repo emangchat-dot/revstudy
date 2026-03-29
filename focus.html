@@ -90,29 +90,26 @@ function runTimer(time, callback){
 
 // 🌌 AI Art Backgrounds
 let aiBackgrounds = [
-    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e", // dreamy landscape
-    "https://images.unsplash.com/photo-1491553895911-0055eca6402d?auto=format&fit=crop&w=1470&q=80" // cosmic AI art
-    "https://images.unsplash.com/photo-1601075569134-ff3a62f20e20", // abstract digital
-    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1470&q=80"  // futuristic city
-    "https://images.unsplash.com/photo-1542281286-9e0a16bb7366?auto=format&fit=crop&w=1470&q=80"
-    "https://images.unsplash.com/photo-1521747116042-5a810fda9664?auto=format&fit=crop&w=1470&q=80"
-    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1470&q=80"
-    "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1470&q=80"
-    "https://images.unsplash.com/photo-1535223289827-42f1e9919769?auto=format&fit=crop&w=1470&q=80"
-    "https://images.unsplash.com/photo-1517487881594-2787fef5ebf7?auto=format&fit=crop&w=1470&q=80"
-    "https://images.unsplash.com/photo-1508973378895-8aa3fb506dee?auto=format&fit=crop&w=1470&q=80"
-    "https://images.unsplash.com/photo-1523206489230-c012d5a02f62?auto=format&fit=crop&w=1470&q=80"
-];
+  "https://images.unsplash.com/photo-1491553895911-0055eca6402d?auto=format&fit=crop&w=1470&q=80",
+  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1470&q=80",
+  "https://images.unsplash.com/photo-1542281286-9e0a16bb7366?auto=format&fit=crop&w=1470&q=80",
+  "https://images.unsplash.com/photo-1521747116042-5a810fda9664?auto=format&fit=crop&w=1470&q=80",
+  "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1470&q=80",
+  "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1470&q=80",
+  "https://images.unsplash.com/photo-1535223289827-42f1e9919769?auto=format&fit=crop&w=1470&q=80",
+  "https://images.unsplash.com/photo-1517487881594-2787fef5ebf7?auto=format&fit=crop&w=1470&q=80",
+  "https://images.unsplash.com/photo-1508973378895-8aa3fb506dee?auto=format&fit=crop&w=1470&q=80",
+  "https://images.unsplash.com/photo-1523206489230-c012d5a02f62?auto=format&fit=crop&w=1470&q=80"
 ];
 
 let bgIndex = 0;
 
-function changeBackground(){
+function changeBackground() {
     document.body.style.backgroundImage = `url('${aiBackgrounds[bgIndex]}')`;
     bgIndex = (bgIndex + 1) % aiBackgrounds.length;
 }
 
-// Change background every 15 seconds
+// initial load
 changeBackground();
 setInterval(changeBackground, 15000);
 </script>
