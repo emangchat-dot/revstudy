@@ -5,6 +5,8 @@
     <title>RevStudy - Ambient Mode</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins&display=swap" rel="stylesheet">
+    <!-- Chart.js for Future-You Predictor -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             margin: 0;
@@ -41,9 +43,7 @@
             border-radius: 8px;
             transition: background 0.3s;
         }
-        .tab.active {
-            background: rgba(255,255,255,0.3);
-        }
+        .tab.active { background: rgba(255,255,255,0.3); }
 
         /* Content */
         .tab-content {
@@ -55,9 +55,7 @@
             border-radius: 12px;
             margin-bottom: 20px;
         }
-        .tab-content.active {
-            display: block;
-        }
+        .tab-content.active { display: block; }
 
         /* Feature placeholders */
         .feature-box {
@@ -76,6 +74,22 @@
             font-family: 'Poppins', sans-serif;
         }
 
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 30px);
+            grid-gap: 5px;
+            justify-content: center;
+        }
+
+        .heatmap-cell {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.2);
+        }
+
+        .heatmap-cell.studied { background: rgba(0,255,0,0.7); }
+        .heatmap-cell.missed { background: rgba(255,0,0,0.7); }
     </style>
 </head>
 <body>
@@ -93,19 +107,30 @@
 
 <!-- Tab Contents -->
 <div id="tab-1" class="tab-content active">
-    <div class="feature-box">📈 Future-You Predictor: Shows your projected progress over time.</div>
+    <div class="feature-box">
+        <canvas id="futureChart" width="400" height="200"></canvas>
+    </div>
 </div>
+
 <div id="tab-2" class="tab-content">
-    <div class="feature-box">🗺️ Heatmap: Visual representation of your study patterns.</div>
+    <div class="feature-box heatmap-grid" id="heatmapGrid"></div>
 </div>
+
 <div id="tab-3" class="tab-content">
-    <div class="feature-box">❓ AI Question Creator: Generate personalized questions for practice.</div>
+    <div class="feature-box">
+        <button onclick="generateQuestion()">Generate Question</button>
+        <p id="aiQuestion">Your question will appear here.</p>
+    </div>
 </div>
+
 <div id="tab-4" class="tab-content">
-    <div class="feature-box">⚠️ Mistakes & Feedback: Track errors and receive AI suggestions.</div>
+    <div id="mistakeBox" class="feature-box">No mistakes yet.</div>
+    <button onclick="addMistake('Forgot formula in Math')">Add Mistake</button>
 </div>
+
 <div id="tab-5" class="tab-content">
-    <div class="feature-box">⏱️ Study Time Stats: Track total hours and focus sessions.</div>
+    <div id="studyStat" class="feature-box">Total Study: 0 min</div>
+    <button onclick="addStudy(25)">Add 25 min</button>
 </div>
 
 <script>
@@ -140,7 +165,70 @@ function changeBackground(){
     bgIndex = (bgIndex + 1) % aiBackgrounds.length;
 }
 changeBackground();
-setInterval(changeBackground, 20000); // change every 20s
+setInterval(changeBackground, 20000);
+
+// --- Future-You Predictor ---
+const ctx = document.getElementById('futureChart').getContext('2d');
+const futureChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: ['Week 1','Week 2','Week 3','Week 4','Week 5'],
+        datasets: [{
+            label: 'Projected Progress',
+            data: [2, 4, 6, 8, 10],
+            borderColor: 'rgba(255,255,255,0.8)',
+            backgroundColor: 'rgba(255,255,255,0.2)',
+            tension: 0.3
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: true, labels: { color: 'white' } } },
+        scales: {
+            y: { ticks: { color: 'white' } },
+            x: { ticks: { color: 'white' } }
+        }
+    }
+});
+
+// --- Heatmap ---
+const heatmapGrid = document.getElementById('heatmapGrid');
+const days = 35; // 5 weeks
+for(let i=0;i<days;i++){
+    const cell = document.createElement('div');
+    cell.classList.add('heatmap-cell');
+    cell.classList.add(Math.random() > 0.3 ? 'studied' : 'missed'); // random example
+    heatmapGrid.appendChild(cell);
+}
+
+// --- AI Question Creator ---
+function generateQuestion() {
+    const topics = ["Math", "Science", "English", "History"];
+    const questions = [
+        "Explain the theory in 3 sentences.",
+        "Solve this problem: 12 + 7 × 3",
+        "Define the term and give an example.",
+        "Summarize this concept in your own words."
+    ];
+    const topic = topics[Math.floor(Math.random()*topics.length)];
+    const question = questions[Math.floor(Math.random()*questions.length)];
+    document.getElementById('aiQuestion').textContent = `Topic: ${topic} | Question: ${question}`;
+}
+
+// --- Mistakes & Feedback ---
+let mistakes = [];
+function addMistake(text) {
+    mistakes.push(text);
+    const box = document.getElementById('mistakeBox');
+    box.innerHTML = mistakes.map((m,i)=>`#${i+1}: ${m}`).join('<br>');
+}
+
+// --- Study Time Stats ---
+let totalStudy = 0;
+function addStudy(minutes){
+    totalStudy += minutes;
+    document.getElementById('studyStat').textContent = `Total Study: ${totalStudy} min`;
+}
 </script>
 
 </body>
