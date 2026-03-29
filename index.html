@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RevStudy</title>
+    <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+            padding: 20px;
+            transition: background 0.5s, color 0.5s;
+        }
+
+        h1 {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        #time {
+            font-size: 30px;
+            margin: 10px;
+        }
+
+        #quote {
+            font-style: italic;
+            margin: 15px;
+        }
+
+        .box {
+            background: rgba(255,255,255,0.8);
+            padding: 15px;
+            margin: 15px auto;
+            width: 300px;
+            border-radius: 12px;
+        }
+
+        button {
+            padding: 10px;
+            margin: 5px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>📚 RevStudy</h1>
+
+<div id="time"></div>
+<div id="quote"></div>
+
+<!-- 🚀 Start Studying Button -->
+<button onclick="goToStudy()">🚀 Start Studying</button>
+
+<div class="box">
+    <h3>🎨 Choose Background</h3>
+    <button onclick="setBackground('gradient')">Gradient</button>
+    <button onclick="setBackground('dark')">Dark</button>
+    <button onclick="setBackground('light')">Light</button>
+    <button onclick="setBackground('space')">Space</button>
+</div>
+
+<script>
+// 🚀 Go to study page
+function goToStudy() {
+    window.location.href = "study.html";
+}
+
+// ⏰ Live Time
+function updateTime() {
+    let now = new Date();
+    let time = now.toLocaleTimeString();
+    document.getElementById("time").textContent = time;
+}
+setInterval(updateTime, 1000);
+updateTime();
+
+// 💬 Quotes
+let quotes = [
+    "Success is the sum of small efforts repeated daily.",
+    "Don’t watch the clock; do what it does. Keep going.",
+    "Push yourself, because no one else will do it for you.",
+    "Great things never come from comfort zones.",
+    "Study now, be proud later."
+];
+
+function showQuote() {
+    let random = Math.floor(Math.random() * quotes.length);
+    document.getElementById("quote").textContent = quotes[random];
+}
+showQuote();
+
+// 🎨 Background changer
+function setBackground(type) {
+    document.body.style.color = "black";
+
+    if (type === "gradient") {
+        document.body.style.background = "linear-gradient(to right, #74ebd5, #ACB6E5)";
+    }
+    else if (type === "dark") {
+        document.body.style.background = "#1e1e1e";
+        document.body.style.color = "white";
+    }
+    else if (type === "light") {
+        document.body.style.background = "#f0f4f8";
+    }
+    else if (type === "space") {
+        document.body.style.background = "url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa')";
+        document.body.style.backgroundSize = "cover";
+        document.body.style.color = "white";
+    }
+
+    localStorage.setItem("bg", type);
+}
+
+// 💾 Load saved background
+window.onload = function () {
+    let saved = localStorage.getItem("bg");
+    if (saved) {
+        setBackground(saved);
+    }
+}
+</script>
+
+</body>
+</html>

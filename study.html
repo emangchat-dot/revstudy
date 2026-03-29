@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RevStudy - Study</title>
+    <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(to right, #74ebd5, #ACB6E5);
+        }
+
+        .box {
+            background: white;
+            padding: 20px;
+            margin: 15px auto;
+            width: 320px;
+            border-radius: 12px;
+        }
+
+        button {
+            padding: 10px;
+            margin: 5px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>📚 RevStudy - Study Mode</h1>
+
+<button onclick="goHome()">🏠 Back to Home</button>
+
+<div class="box">
+    <h3>🎯 Study Planner</h3>
+    <input type="text" id="task" placeholder="Enter task">
+    <button onclick="addTask()">Add Task (+10 XP)</button>
+    <ul id="taskList"></ul>
+</div>
+
+<div class="box">
+    <h3>⏱️ Focus Timer</h3>
+    <p id="timer">25:00</p>
+    <button onclick="startTimer()">Start</button>
+</div>
+
+<script>
+function goHome() {
+    window.location.href = "index.html";
+}
+
+// Study planner
+function addTask() {
+    let task = document.getElementById("task").value;
+    let li = document.createElement("li");
+    li.textContent = task;
+    document.getElementById("taskList").appendChild(li);
+}
+
+// Timer
+let time = 1500;
+let timerRunning = false;
+
+function startTimer() {
+    if (timerRunning) return;
+    timerRunning = true;
+
+    let interval = setInterval(() => {
+        let minutes = Math.floor(time / 60);
+        let seconds = time % 60;
+
+        document.getElementById("timer").textContent =
+            `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+
+        time--;
+
+        if (time < 0) {
+            clearInterval(interval);
+            timerRunning = false;
+            alert("Session complete! 🎉");
+            time = 1500;
+        }
+    }, 1000);
+}
+</script>
+
+</body>
+</html>
