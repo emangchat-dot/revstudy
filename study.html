@@ -1,20 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>RevStudy - Study</title>
+    <title>RevStudy</title>
     <style>
         body {
             font-family: Arial;
             text-align: center;
             padding: 20px;
-            background: linear-gradient(to right, #74ebd5, #ACB6E5);
+            transition: opacity 0.5s, background 0.5s, color 0.5s;
+            opacity: 0;
         }
+        body.loaded { opacity: 1; }
+
+        h1 { font-size: 40px; margin-bottom: 10px; }
+        #time { font-size: 30px; margin: 10px; }
+        #quote { font-style: italic; margin: 15px; }
 
         .box {
-            background: white;
-            padding: 20px;
+            background: rgba(255,255,255,0.8);
+            padding: 15px;
             margin: 15px auto;
-            width: 320px;
+            width: 300px;
             border-radius: 12px;
         }
 
@@ -24,68 +30,82 @@
             border-radius: 8px;
             border: none;
             cursor: pointer;
-            background-color: #4CAF50;
-            color: white;
         }
     </style>
 </head>
-
 <body>
 
-<h1>📚 RevStudy - Study Mode</h1>
+<h1>📚 RevStudy</h1>
 
-<button onclick="goHome()">🏠 Back to Home</button>
+<div id="time"></div>
+<div id="quote"></div>
 
+<!-- ✅ Navigation Buttons -->
 <div class="box">
-    <h3>🎯 Study Planner</h3>
-    <input type="text" id="task" placeholder="Enter task">
-    <button onclick="addTask()">Add Task (+10 XP)</button>
-    <ul id="taskList"></ul>
+    <button onclick="goTo('study.html')"> Study Mode</button>
+    <button onclick="goTo('focus.html')">🎯 Focus Mode</button>
+    <button onclick="goTo('ambient.html')">🌿 Ambient Mode</button>
 </div>
 
 <div class="box">
-    <h3>⏱️ Focus Timer</h3>
-    <p id="timer">25:00</p>
-    <button onclick="startTimer()">Start</button>
+    <h3>🎨 Choose Background</h3>
+    <button onclick="setBackground('gradient')">Gradient</button>
+    <button onclick="setBackground('dark')">Dark</button>
+    <button onclick="setBackground('light')">Light</button>
+    <button onclick="setBackground('space')">Space</button>
 </div>
 
 <script>
-function goHome() {
-    window.location.href = "index.html";
+// Fade in page
+window.onload = () => document.body.classList.add("loaded");
+
+// Navigation
+function goTo(page){
+    document.body.classList.remove("loaded");
+    setTimeout(() => window.location.href = page, 300);
 }
 
-// Study planner
-function addTask() {
-    let task = document.getElementById("task").value;
-    let li = document.createElement("li");
-    li.textContent = task;
-    document.getElementById("taskList").appendChild(li);
+// Live clock
+function updateTime() {
+    let now = new Date();
+    document.getElementById("time").textContent = now.toLocaleTimeString();
+}
+setInterval(updateTime, 1000);
+updateTime();
+
+// Random quote
+let quotes = [
+    "Success is the sum of small efforts repeated daily.",
+    "Don’t watch the clock; do what it does. Keep going.",
+    "Push yourself, because no one else will do it for you.",
+    "Great things never come from comfort zones.",
+    "Study now, be proud later."
+];
+function showQuote() {
+    let random = Math.floor(Math.random() * quotes.length);
+    document.getElementById("quote").textContent = quotes[random];
+}
+showQuote();
+
+// Background changer
+function setBackground(type) {
+    document.body.style.color = "black";
+    if (type === "gradient") document.body.style.background = "linear-gradient(to right, #74ebd5, #ACB6E5)";
+    else if (type === "dark") { document.body.style.background = "#1e1e1e"; document.body.style.color = "white"; }
+    else if (type === "light") document.body.style.background = "#f0f4f8";
+    else if (type === "space") { 
+        document.body.style.background = "url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa')"; 
+        document.body.style.backgroundSize = "cover"; 
+        document.body.style.color = "white"; 
+    }
+    localStorage.setItem("bg", type);
 }
 
-// Timer
-let time = 1500;
-let timerRunning = false;
-
-function startTimer() {
-    if (timerRunning) return;
-    timerRunning = true;
-
-    let interval = setInterval(() => {
-        let minutes = Math.floor(time / 60);
-        let seconds = time % 60;
-
-        document.getElementById("timer").textContent =
-            `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
-
-        time--;
-
-        if (time < 0) {
-            clearInterval(interval);
-            timerRunning = false;
-            alert("Session complete! 🎉");
-            time = 1500;
-        }
-    }, 1000);
+// Load saved background
+window.onload = function() {
+    document.body.classList.add("loaded");
+    let saved = localStorage.getItem("bg");
+    if(saved) setBackground(saved);
 }
 </script>
 
