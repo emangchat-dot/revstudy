@@ -31,65 +31,21 @@
         }
 
         /* Tabs */
-        .tabs {
-            display: flex;
-            margin-bottom: 20px;
-        }
-        .tab {
-            padding: 10px 20px;
-            cursor: pointer;
-            background: rgba(0,0,0,0.5);
-            margin: 0 5px;
-            border-radius: 8px;
-            transition: background 0.3s;
-        }
+        .tabs { display: flex; margin-bottom: 20px; }
+        .tab { padding: 10px 20px; cursor: pointer; background: rgba(0,0,0,0.5); margin: 0 5px; border-radius: 8px; transition: background 0.3s; }
         .tab.active { background: rgba(255,255,255,0.3); }
 
         /* Content */
-        .tab-content {
-            display: none;
-            width: 90%;
-            max-width: 800px;
-            background: rgba(0,0,0,0.5);
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-        }
+        .tab-content { display: none; width: 90%; max-width: 800px; background: rgba(0,0,0,0.5); padding: 20px; border-radius: 12px; margin-bottom: 20px; }
         .tab-content.active { display: block; }
 
-        /* Feature placeholders */
-        .feature-box {
-            background: rgba(255,255,255,0.1);
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 10px;
-        }
+        .feature-box { background: rgba(255,255,255,0.1); padding: 15px; margin: 10px 0; border-radius: 10px; }
 
-        button {
-            padding: 8px 15px;
-            margin-top: 10px;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            font-family: 'Poppins', sans-serif;
-        }
+        button { padding: 8px 15px; margin-top: 10px; border-radius: 6px; border: none; cursor: pointer; font-family: 'Poppins', sans-serif; }
 
-        .heatmap-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 30px);
-            grid-gap: 5px;
-            justify-content: center;
-        }
-
-        .heatmap-cell {
-            width: 30px;
-            height: 30px;
-            border-radius: 4px;
-            background: rgba(255,255,255,0.2);
-        }
-
-        .heatmap-cell.studied { background: rgba(0,255,0,0.7); }
-        .heatmap-cell.missed { background: rgba(255,0,0,0.7); }
+        /* Heatmap */
+        .heatmap-grid { display: grid; grid-template-columns: repeat(7, 40px); grid-gap: 5px; justify-content: center; }
+        .heatmap-cell { width: 40px; height: 40px; border-radius: 4px; background: rgba(255,255,255,0.1); display:flex; align-items:center; justify-content:center; font-size:12px; cursor:pointer; }
     </style>
 </head>
 <body>
@@ -130,23 +86,23 @@
 
 <div id="tab-5" class="tab-content">
     <div id="studyStat" class="feature-box">Total Study: 0 min</div>
-    <button onclick="addStudy(25)">Add 25 min</button>
+    <input type="number" id="studyInput" placeholder="Minutes studied">
+    <button onclick="addStudyFromInput()">Add Study</button>
 </div>
 
 <script>
 // Fade in
 window.onload = () => document.body.classList.add("loaded");
 
-// Tabs logic
+// Tabs
 const tabs = document.querySelectorAll(".tab");
 const contents = document.querySelectorAll(".tab-content");
-
-tabs.forEach(tab => {
-    tab.addEventListener("click", () => {
-        tabs.forEach(t => t.classList.remove("active"));
+tabs.forEach(tab=>{
+    tab.addEventListener("click", ()=>{
+        tabs.forEach(t=>t.classList.remove("active"));
         tab.classList.add("active");
-        contents.forEach(c => c.classList.remove("active"));
-        document.getElementById("tab-" + tab.dataset.tab).classList.add("active");
+        contents.forEach(c=>c.classList.remove("active"));
+        document.getElementById("tab-"+tab.dataset.tab).classList.add("active");
     });
 });
 
@@ -158,76 +114,90 @@ let aiBackgrounds = [
   "https://images.unsplash.com/photo-1491553895911-0055eca6402d?auto=format&fit=crop&w=1470&q=80",
   "https://images.unsplash.com/photo-1535223289827-42f1e9919769?auto=format&fit=crop&w=1470&q=80"
 ];
-
-let bgIndex = 0;
+let bgIndex=0;
 function changeBackground(){
-    document.body.style.backgroundImage = `url('${aiBackgrounds[bgIndex]}')`;
-    bgIndex = (bgIndex + 1) % aiBackgrounds.length;
+    document.body.style.backgroundImage=`url('${aiBackgrounds[bgIndex]}')`;
+    bgIndex=(bgIndex+1)%aiBackgrounds.length;
 }
 changeBackground();
-setInterval(changeBackground, 20000);
+setInterval(changeBackground,20000);
 
 // --- Future-You Predictor ---
 const ctx = document.getElementById('futureChart').getContext('2d');
-const futureChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: ['Week 1','Week 2','Week 3','Week 4','Week 5'],
-        datasets: [{
-            label: 'Projected Progress',
-            data: [2, 4, 6, 8, 10],
-            borderColor: 'rgba(255,255,255,0.8)',
-            backgroundColor: 'rgba(255,255,255,0.2)',
-            tension: 0.3
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: { legend: { display: true, labels: { color: 'white' } } },
-        scales: {
-            y: { ticks: { color: 'white' } },
-            x: { ticks: { color: 'white' } }
-        }
-    }
-});
+const futureChart = new Chart(ctx,{type:'line',data:{
+    labels:['Week 1','Week 2','Week 3','Week 4','Week 5'],
+    datasets:[{
+        label:'Projected Progress',
+        data:[2,4,6,8,10],
+        borderColor:'rgba(255,255,255,0.8)',
+        backgroundColor:'rgba(255,255,255,0.2)',
+        tension:0.3
+    }]
+},options:{responsive:true,plugins:{legend:{display:true,labels:{color:'white'}}},scales:{y:{ticks:{color:'white'}},x:{ticks:{color:'white'}}}}});
 
 // --- Heatmap ---
 const heatmapGrid = document.getElementById('heatmapGrid');
-const days = 35; // 5 weeks
-for(let i=0;i<days;i++){
-    const cell = document.createElement('div');
+let today = new Date();
+let storedData = JSON.parse(localStorage.getItem('studyData') || '{}');
+
+// Generate 35 days (5 weeks)
+for(let i=34;i>=0;i--){
+    let day = new Date();
+    day.setDate(today.getDate()-i);
+    let dayKey = day.toISOString().split('T')[0];
+    let minutes = storedData[dayKey] || 0;
+    let cell = document.createElement('div');
     cell.classList.add('heatmap-cell');
-    cell.classList.add(Math.random() > 0.3 ? 'studied' : 'missed'); // random example
+    let intensity = Math.min(minutes/120,1); // assume max 120 min for color scale
+    cell.style.backgroundColor = `rgba(0,255,0,${intensity})`;
+    cell.title = `${dayKey}: ${minutes} min`;
     heatmapGrid.appendChild(cell);
 }
 
 // --- AI Question Creator ---
-function generateQuestion() {
-    const topics = ["Math", "Science", "English", "History"];
-    const questions = [
-        "Explain the theory in 3 sentences.",
-        "Solve this problem: 12 + 7 × 3",
-        "Define the term and give an example.",
-        "Summarize this concept in your own words."
-    ];
-    const topic = topics[Math.floor(Math.random()*topics.length)];
-    const question = questions[Math.floor(Math.random()*questions.length)];
-    document.getElementById('aiQuestion').textContent = `Topic: ${topic} | Question: ${question}`;
+function generateQuestion(){
+    const topics=["Math","Science","English","History"];
+    const questions=["Explain the theory in 3 sentences.","Solve this problem: 12 + 7 × 3","Define the term and give an example.","Summarize this concept in your own words."];
+    const topic=topics[Math.floor(Math.random()*topics.length)];
+    const question=questions[Math.floor(Math.random()*questions.length)];
+    document.getElementById('aiQuestion').textContent=`Topic: ${topic} | Question: ${question}`;
 }
 
 // --- Mistakes & Feedback ---
-let mistakes = [];
-function addMistake(text) {
+let mistakes=[];
+function addMistake(text){
     mistakes.push(text);
-    const box = document.getElementById('mistakeBox');
-    box.innerHTML = mistakes.map((m,i)=>`#${i+1}: ${m}`).join('<br>');
+    const box=document.getElementById('mistakeBox');
+    box.innerHTML=mistakes.map((m,i)=>`#${i+1}: ${m}`).join('<br>');
 }
 
 // --- Study Time Stats ---
-let totalStudy = 0;
-function addStudy(minutes){
-    totalStudy += minutes;
-    document.getElementById('studyStat').textContent = `Total Study: ${totalStudy} min`;
+let totalStudy = Object.values(storedData).reduce((a,b)=>a+b,0);
+document.getElementById('studyStat').textContent=`Total Study: ${totalStudy} min`;
+
+function addStudyFromInput(){
+    let input = parseInt(document.getElementById('studyInput').value);
+    if(!input) return;
+    let dayKey = today.toISOString().split('T')[0];
+    storedData[dayKey] = (storedData[dayKey] || 0) + input;
+    localStorage.setItem('studyData', JSON.stringify(storedData));
+    // update heatmap and total
+    totalStudy += input;
+    document.getElementById('studyStat').textContent=`Total Study: ${totalStudy} min`;
+    // update today's cell
+    heatmapGrid.innerHTML='';
+    for(let i=34;i>=0;i--){
+        let day = new Date();
+        day.setDate(today.getDate()-i);
+        let dKey = day.toISOString().split('T')[0];
+        let min = storedData[dKey] || 0;
+        let cell = document.createElement('div');
+        cell.classList.add('heatmap-cell');
+        let intensity = Math.min(min/120,1);
+        cell.style.backgroundColor = `rgba(0,255,0,${intensity})`;
+        cell.title = `${dKey}: ${min} min`;
+        heatmapGrid.appendChild(cell);
+    }
 }
 </script>
 
