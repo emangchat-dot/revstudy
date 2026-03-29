@@ -1,41 +1,60 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>RevStudy - Focus Mode</title>
-<style>
-body {
-    font-family: Arial;
-    text-align: center;
-    color: white;
-    margin: 0;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    transition: opacity 0.5s;
-    opacity: 0;
-    background-size: cover;
-    background-position: center;
-}
-body.loaded { opacity: 1; }
+    <title>RevStudy - Focus Mode</title>
+    <!-- Google Fonts for artistic style -->
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            color: white;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s;
+            opacity: 0;
+            background-size: cover;
+            background-position: center;
+        }
 
-h1 { font-size: 40px; margin-bottom: 20px; }
-.box {
-    background: rgba(0,0,0,0.5);
-    padding: 20px;
-    margin: 20px;
-    width: 300px;
-    border-radius: 12px;
-}
-button {
-    padding: 10px;
-    margin: 5px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-}
-</style>
+        body.loaded { opacity: 1; }
+
+        h1 {
+            font-family: 'Pacifico', cursive;
+            font-size: 50px;
+            margin-bottom: 20px;
+        }
+
+        .box {
+            background: rgba(0,0,0,0.5);
+            padding: 20px;
+            margin: 20px;
+            width: 300px;
+            border-radius: 12px;
+        }
+
+        button {
+            padding: 10px;
+            margin: 5px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        input {
+            padding: 8px;
+            margin: 5px 0;
+            width: 80px;
+            border-radius: 6px;
+            border: none;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
 
@@ -44,17 +63,16 @@ button {
 
 <div class="box">
     <h3>⏱️ Study Timer</h3>
-    <input type="number" id="studyTime" placeholder="Study minutes">
-    <input type="number" id="breakTime" placeholder="Break minutes">
+    <input type="number" id="studyTime" placeholder="Study min">
+    <input type="number" id="breakTime" placeholder="Break min">
     <button onclick="startTimer()">Start</button>
     <p id="timer">00:00</p>
 </div>
 
 <script>
-// Fade in
 window.onload = () => document.body.classList.add("loaded");
 
-// Navigation back home
+// Home navigation
 function goHome(){
     document.body.classList.remove("loaded");
     setTimeout(()=> window.location.href="index.html",300);
@@ -62,7 +80,6 @@ function goHome(){
 
 // Timer logic
 let timerInterval;
-
 function startTimer(){
     let study = parseInt(document.getElementById("studyTime").value) * 60;
     let brk = parseInt(document.getElementById("breakTime").value) * 60;
@@ -87,7 +104,7 @@ function runTimer(time, callback){
     },1000);
 }
 
-// Background images
+// AI-style background images
 let aiBackgrounds = [
   "https://images.unsplash.com/photo-1491553895911-0055eca6402d?auto=format&fit=crop&w=1470&q=80",
   "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1470&q=80",
@@ -109,7 +126,6 @@ function changeBackground(){
 }
 changeBackground();
 setInterval(changeBackground, 15000);
-
 </script>
 
 </body>
