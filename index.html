@@ -7,23 +7,14 @@
             font-family: Arial;
             text-align: center;
             padding: 20px;
-            transition: background 0.5s, color 0.5s;
+            transition: opacity 0.5s, background 0.5s, color 0.5s;
+            opacity: 0;
         }
+        body.loaded { opacity: 1; }
 
-        h1 {
-            font-size: 40px;
-            margin-bottom: 10px;
-        }
-
-        #time {
-            font-size: 30px;
-            margin: 10px;
-        }
-
-        #quote {
-            font-style: italic;
-            margin: 15px;
-        }
+        h1 { font-size: 40px; margin-bottom: 10px; }
+        #time { font-size: 30px; margin: 10px; }
+        #quote { font-style: italic; margin: 15px; }
 
         .box {
             background: rgba(255,255,255,0.8);
@@ -42,7 +33,6 @@
         }
     </style>
 </head>
-
 <body>
 
 <h1>📚 RevStudy</h1>
@@ -50,8 +40,12 @@
 <div id="time"></div>
 <div id="quote"></div>
 
-<!-- 🚀 Start Studying Button -->
-<button onclick="goToStudy()">🚀 Start Studying</button>
+<!-- ✅ Navigation Buttons -->
+<div class="box">
+    <button onclick="goTo('study.html')"> Study Mode</button>
+    <button onclick="goTo('focus.html')">🎯 Focus Mode</button>
+    <button onclick="goTo('ambient.html')">🌿 Ambient Mode</button>
+</div>
 
 <div class="box">
     <h3>🎨 Choose Background</h3>
@@ -62,21 +56,24 @@
 </div>
 
 <script>
-// 🚀 Go to study page
-function goToStudy() {
-    window.location.href = "study.html";
+// Fade in page
+window.onload = () => document.body.classList.add("loaded");
+
+// Navigation
+function goTo(page){
+    document.body.classList.remove("loaded");
+    setTimeout(() => window.location.href = page, 300);
 }
 
-// ⏰ Live Time
+// Live clock
 function updateTime() {
     let now = new Date();
-    let time = now.toLocaleTimeString();
-    document.getElementById("time").textContent = time;
+    document.getElementById("time").textContent = now.toLocaleTimeString();
 }
 setInterval(updateTime, 1000);
 updateTime();
 
-// 💬 Quotes
+// Random quote
 let quotes = [
     "Success is the sum of small efforts repeated daily.",
     "Don’t watch the clock; do what it does. Keep going.",
@@ -84,42 +81,31 @@ let quotes = [
     "Great things never come from comfort zones.",
     "Study now, be proud later."
 ];
-
 function showQuote() {
     let random = Math.floor(Math.random() * quotes.length);
     document.getElementById("quote").textContent = quotes[random];
 }
 showQuote();
 
-// 🎨 Background changer
+// Background changer
 function setBackground(type) {
     document.body.style.color = "black";
-
-    if (type === "gradient") {
-        document.body.style.background = "linear-gradient(to right, #74ebd5, #ACB6E5)";
+    if (type === "gradient") document.body.style.background = "linear-gradient(to right, #74ebd5, #ACB6E5)";
+    else if (type === "dark") { document.body.style.background = "#1e1e1e"; document.body.style.color = "white"; }
+    else if (type === "light") document.body.style.background = "#f0f4f8";
+    else if (type === "space") { 
+        document.body.style.background = "url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa')"; 
+        document.body.style.backgroundSize = "cover"; 
+        document.body.style.color = "white"; 
     }
-    else if (type === "dark") {
-        document.body.style.background = "#1e1e1e";
-        document.body.style.color = "white";
-    }
-    else if (type === "light") {
-        document.body.style.background = "#f0f4f8";
-    }
-    else if (type === "space") {
-        document.body.style.background = "url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa')";
-        document.body.style.backgroundSize = "cover";
-        document.body.style.color = "white";
-    }
-
     localStorage.setItem("bg", type);
 }
 
-// 💾 Load saved background
-window.onload = function () {
+// Load saved background
+window.onload = function() {
+    document.body.classList.add("loaded");
     let saved = localStorage.getItem("bg");
-    if (saved) {
-        setBackground(saved);
-    }
+    if(saved) setBackground(saved);
 }
 </script>
 
