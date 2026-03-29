@@ -2,6 +2,9 @@
 <html>
 <head>
     <title>RevStudy</title>
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
     <style>
         body {
             font-family: Arial;
@@ -15,6 +18,7 @@
         h1 { font-size: 40px; margin-bottom: 10px; }
         #time { font-size: 30px; margin: 10px; }
         #quote { font-style: italic; margin: 15px; }
+        #welcomeUser { font-size: 22px; margin: 10px; }
 
         .box {
             background: rgba(255,255,255,0.8);
@@ -37,7 +41,21 @@
 
 <h1>📚 RevStudy</h1>
 
+<!-- Google Sign-In -->
+<div id="g_id_onload"
+     data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
+     data-callback="handleCredentialResponse"
+     data-auto_prompt="false">
+</div>
+<div class="g_id_signin" data-type="standard"></div>
+
+<!-- Greeting -->
+<p id="welcomeUser"></p>
+
+<!-- Time -->
 <div id="time"></div>
+
+<!-- Quote -->
 <div id="quote"></div>
 
 <!-- ✅ Navigation Buttons -->
@@ -47,6 +65,7 @@
     <button onclick="goTo('ambient.html')">🌿 Ambient Mode</button>
 </div>
 
+<!-- Background chooser -->
 <div class="box">
     <h3>🎨 Choose Background</h3>
     <button onclick="setBackground('gradient')">Gradient</button>
@@ -56,7 +75,7 @@
 </div>
 
 <script>
-// Fade in page
+// Fade-in
 window.onload = () => document.body.classList.add("loaded");
 
 // Navigation
@@ -94,7 +113,7 @@ function setBackground(type) {
     else if (type === "dark") { document.body.style.background = "#1e1e1e"; document.body.style.color = "white"; }
     else if (type === "light") document.body.style.background = "#f0f4f8";
     else if (type === "space") { 
-        document.body.style.background = "url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa')"; 
+        document.body.style.background = "url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1470&q=80')"; 
         document.body.style.backgroundSize = "cover"; 
         document.body.style.color = "white"; 
     }
@@ -102,10 +121,24 @@ function setBackground(type) {
 }
 
 // Load saved background
-window.onload = function() {
-    document.body.classList.add("loaded");
-    let saved = localStorage.getItem("bg");
-    if(saved) setBackground(saved);
+let savedBG = localStorage.getItem("bg");
+if(savedBG) setBackground(savedBG);
+
+// --- Google Sign-In ---
+function handleCredentialResponse(response) {
+    const data = parseJwt(response.credential);
+    const userName = data.name || data.email.split("@")[0];
+    document.getElementById("welcomeUser").textContent = `Hello, ${userName}!`;
+}
+
+// Decode JWT
+function parseJwt (token) {
+    let base64Url = token.split('.')[1];
+    let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    let jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload);
 }
 </script>
 
