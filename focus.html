@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>RevStudy - Focus</title>
+<style>
+body {
+    font-family: Arial;
+    text-align: center;
+    color: white;
+    background: linear-gradient(270deg, #0f2027, #203a43, #2c5364);
+    background-size: 600% 600%;
+    animation: gradientMove 10s ease infinite;
+    opacity: 0;
+    transition: opacity 0.5s;
+}
+
+body.loaded { opacity: 1; }
+
+@keyframes gradientMove {
+    0% {background-position: 0%;}
+    50% {background-position: 100%;}
+    100% {background-position: 0%;}
+}
+
+.box {
+    background: rgba(0,0,0,0.5);
+    padding: 20px;
+    margin: 20px auto;
+    width: 300px;
+    border-radius: 12px;
+}
+
+button {
+    padding: 10px;
+    margin: 5px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🎯 Focus Mode</h1>
+<button onclick="goHome()">🏠 Home</button>
+
+<div class="box">
+    <h3>⏱️ Study Timer</h3>
+    <input type="number" id="studyTime" placeholder="Study minutes">
+    <input type="number" id="breakTime" placeholder="Break minutes">
+    <button onclick="startTimer()">Start</button>
+    <p id="timer">00:00</p>
+</div>
+
+<script>
+window.onload = function () {
+    document.body.classList.add("loaded");
+}
+window.onload = () => document.body.classList.add("loaded");
+
+function goHome(){
+    document.body.classList.remove("loaded");
+    setTimeout(()=> window.location.href="index.html",300);
+}
+
+let timerInterval;
+
+function startTimer(){
+    let study = document.getElementById("studyTime").value * 60;
+    let brk = document.getElementById("breakTime").value * 60;
+
+    runTimer(study, () => {
+        alert("Break Time!");
+        runTimer(brk);
+    });
+}
+
+function runTimer(time, callback){
+    clearInterval(timerInterval);
+
+    timerInterval = setInterval(()=>{
+        let m = Math.floor(time/60);
+        let s = time%60;
+
+        document.getElementById("timer").textContent =
+            `${m}:${s<10?"0":""}${s}`;
+
+        time--;
+
+        if(time<0){
+            clearInterval(timerInterval);
+            if(callback) callback();
+        }
+    },1000);
+}
+</script>
+
+</body>
+</html>

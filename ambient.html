@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>RevStudy - Ambient</title>
+<style>
+body {
+    font-family: Arial;
+    text-align: center;
+    background: linear-gradient(to right, #d7ccc8, #a1887f);
+    opacity: 0;
+    transition: opacity 0.5s;
+}
+
+body.loaded { opacity: 1; }
+
+.box {
+    background: rgba(255,255,255,0.9);
+    padding: 20px;
+    margin: 15px auto;
+    width: 320px;
+    border-radius: 12px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🌿 Ambient Study</h1>
+<button onclick="goHome()">🏠 Home</button>
+
+<div class="box">
+    <h3>📊 Future You Predictor</h3>
+    <input id="hours" placeholder="Hours studied">
+    <input id="accuracy" placeholder="Accuracy %">
+    <button onclick="predict()">Predict</button>
+    <p id="prediction"></p>
+</div>
+
+<div class="box">
+    <h3>🔥 Weakness Heatmap</h3>
+    <input id="topic" placeholder="Topic">
+    <input id="score" placeholder="Score %">
+    <button onclick="addHeat()">Add</button>
+    <ul id="heatmap"></ul>
+</div>
+
+<div class="box">
+    <h3>🤖 AI Question Generator</h3>
+    <input id="topicQ" placeholder="Topic">
+    <button onclick="generateQ()">Generate</button>
+    <p id="question"></p>
+</div>
+
+<div class="box">
+    <h3>🧠 Mistake Analysis</h3>
+    <input id="mistake" placeholder="Your mistake">
+    <button onclick="analyze()">Analyze</button>
+    <p id="analysis"></p>
+</div>
+
+<script>
+window.onload = function () {
+    document.body.classList.add("loaded");
+}
+window.onload = () => document.body.classList.add("loaded");
+
+function goHome(){
+    document.body.classList.remove("loaded");
+    setTimeout(()=> window.location.href="index.html",300);
+}
+
+// Predictor
+function predict(){
+    let h = document.getElementById("hours").value;
+    let a = document.getElementById("accuracy").value;
+    let result = (h * a / 10).toFixed(1);
+    document.getElementById("prediction").textContent =
+        "Estimated score: " + result + "%";
+}
+
+// Heatmap
+function addHeat(){
+    let topic = document.getElementById("topic").value;
+    let score = document.getElementById("score").value;
+    let li = document.createElement("li");
+    li.textContent = topic + " → " + score + "%";
+    document.getElementById("heatmap").appendChild(li);
+}
+
+// Question generator
+function generateQ(){
+    let topic = document.getElementById("topicQ").value;
+    document.getElementById("question").textContent =
+        "Explain the concept of " + topic;
+}
+
+// Mistake analysis
+function analyze(){
+    let text = document.getElementById("mistake").value;
+    document.getElementById("analysis").textContent =
+        "You should review this concept carefully: " + text;
+}
+</script>
+
+</body>
+</html>
