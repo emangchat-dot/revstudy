@@ -1,45 +1,45 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>RevStudy - Focus</title>
-<style>
-body {
-    font-family: Arial;
-    text-align: center;
-    color: white;
-    background: linear-gradient(270deg, #0f2027, #203a43, #2c5364);
-    background-size: 600% 600%;
-    animation: gradientMove 10s ease infinite;
-    opacity: 0;
-    transition: opacity 0.5s;
-}
+    <title>RevStudy - Focus Mode</title>
+    <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+            color: white;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s;
+            opacity: 0;
+            background-size: cover;
+            background-position: center;
+        }
 
-body.loaded { opacity: 1; }
+        body.loaded { opacity: 1; }
 
-@keyframes gradientMove {
-    0% {background-position: 0%;}
-    50% {background-position: 100%;}
-    100% {background-position: 0%;}
-}
+        h1 { font-size: 40px; margin-bottom: 20px; }
 
-.box {
-    background: rgba(0,0,0,0.5);
-    padding: 20px;
-    margin: 20px auto;
-    width: 300px;
-    border-radius: 12px;
-}
+        .box {
+            background: rgba(0,0,0,0.5);
+            padding: 20px;
+            margin: 20px;
+            width: 300px;
+            border-radius: 12px;
+        }
 
-button {
-    padding: 10px;
-    margin: 5px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-}
-</style>
+        button {
+            padding: 10px;
+            margin: 5px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
 </head>
-
 <body>
 
 <h1>🎯 Focus Mode</h1>
@@ -54,9 +54,6 @@ button {
 </div>
 
 <script>
-window.onload = function () {
-    document.body.classList.add("loaded");
-}
 window.onload = () => document.body.classList.add("loaded");
 
 function goHome(){
@@ -64,6 +61,7 @@ function goHome(){
     setTimeout(()=> window.location.href="index.html",300);
 }
 
+// Timer
 let timerInterval;
 
 function startTimer(){
@@ -78,22 +76,36 @@ function startTimer(){
 
 function runTimer(time, callback){
     clearInterval(timerInterval);
-
     timerInterval = setInterval(()=>{
         let m = Math.floor(time/60);
         let s = time%60;
-
-        document.getElementById("timer").textContent =
-            `${m}:${s<10?"0":""}${s}`;
-
+        document.getElementById("timer").textContent = `${m}:${s<10?"0":""}${s}`;
         time--;
-
         if(time<0){
             clearInterval(timerInterval);
             if(callback) callback();
         }
     },1000);
 }
+
+// 🌌 AI Art Backgrounds
+let aiBackgrounds = [
+    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e", // dreamy landscape
+    "https://images.unsplash.com/photo-1612832021186-4d087b16f05d", // cosmic AI art
+    "https://images.unsplash.com/photo-1601075569134-ff3a62f20e20", // abstract digital
+    "https://images.unsplash.com/photo-1593642634367-d91a135587b5"  // futuristic city
+];
+
+let bgIndex = 0;
+
+function changeBackground(){
+    document.body.style.backgroundImage = `url('${aiBackgrounds[bgIndex]}')`;
+    bgIndex = (bgIndex + 1) % aiBackgrounds.length;
+}
+
+// Change background every 15 seconds
+changeBackground();
+setInterval(changeBackground, 15000);
 </script>
 
 </body>
