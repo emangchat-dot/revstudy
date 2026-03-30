@@ -1,23 +1,9 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>RevStudy - Friends</title>
-</head>
-
-<body>
-
-<h1>🌟 RevStudy Friends & Leaderboard</h1>
-
-<div>
-    <input type="text" id="username" placeholder="Your name">
-    <button onclick="addUser()">Join</button>
-</div>
-
-<ul id="leaderboard"></ul>
-
 <script>
 const apiURL = "https://69ca1193ba5984c44bf28521.mockapi.io/users";
 
+function goHome() { window.location.href = "index.html"; }
+
+// 🔄 Load leaderboard
 async function loadLeaderboard() {
     try {
         const res = await fetch(apiURL);
@@ -26,36 +12,67 @@ async function loadLeaderboard() {
         const list = document.getElementById("leaderboard");
         list.innerHTML = "";
 
+        // Sort by XP
         data.sort((a, b) => Number(b.xp || 0) - Number(a.xp || 0));
 
         data.forEach(user => {
             const li = document.createElement("li");
-            li.textContent = `${user.username || "Unknown"} - ${user.xp || 0} XP`;
+
+            // 👇 Added XP button for testing
+            li.innerHTML = `
+                ${user.username || "Unknown"} - ${user.xp || 0} XP
+                <button onclick="addXP('${user.id}', 10)">+10 XP</button>
+            `;
+
             list.appendChild(li);
         });
 
     } catch (err) {
-        console.error(err);
+        console.error("Leaderboard error:", err);
     }
 }
 
+// ➕ Add new user
 async function addUser() {
     const username = document.getElementById("username").value.trim();
-    if (!username) return;
+    if (!username) return alert("Enter a username!");
 
     await fetch(apiURL, {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ username, xp: 0 })
+        body: JSON.stringify({ username: username, xp: 0 })
     });
 
+    document.getElementById("username").value = "";
     loadLeaderboard();
 }
 
-loadLeaderboard();
-setInterval(loadLeaderboard, 3000);
+// ⭐ NEW: Update XP
+async function addXP(userId, amount) {
+    try {
+        // Get current user data
+        const res = await fetch(`${apiURL}/${userId}`);
+        const user = await res.json();
+
+        const newXP = Number(user.xp || 0) + amount;
+
+        // Update XP in database
+        await fetch(`${apiURL}/${userId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ xp: newXP })
+        });
+
+        loadLeaderboard();
+
+    } catch (err) {
+        console.error("XP update failed:", err);
+    }
+}
+
+// 🚀 Start app
+window.onload = () => {
+    loadLeaderboard();
+    setInterval(loadLeaderboard, 3000); // auto refresh
+};
 </script>
-
-</body>
-</html>
-
