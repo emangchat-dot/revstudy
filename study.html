@@ -27,6 +27,22 @@
             background-color: #4CAF50;
             color: white;
         }
+
+        /* NEW XP BAR */
+        .xp-bar {
+            width: 320px;
+            margin: 10px auto;
+            background: #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .xp-fill {
+            height: 20px;
+            width: 0%;
+            background: #4CAF50;
+            transition: width 0.3s;
+        }
     </style>
 </head>
 
@@ -35,6 +51,14 @@
 <h1>📚 RevStudy - Study Mode</h1>
 
 <button onclick="goHome()">🏠 Back to Home</button>
+
+<!-- ⭐ NEW XP DISPLAY -->
+<h2>⭐ XP: <span id="xpCount">0</span></h2>
+<h3>🏆 Level: <span id="level">1</span></h3>
+
+<div class="xp-bar">
+    <div class="xp-fill" id="xpFill"></div>
+</div>
 
 <div class="box">
     <h3>🎯 Study Planner</h3>
@@ -52,20 +76,60 @@
 <script>
 window.onload = function () {
     document.body.classList.add("loaded");
+    loadData();
 }
+
 function goHome() {
     window.location.href = "index.html";
 }
 
-// Study planner
-function addTask() {
-    let task = document.getElementById("task").value;
-    let li = document.createElement("li");
-    li.textContent = task;
-    document.getElementById("taskList").appendChild(li);
+// ⭐ NEW: Load saved data
+let xp = 0;
+let tasks = [];
+
+function loadData() {
+    xp = localStorage.getItem("xp") ? parseInt(localStorage.getItem("xp")) : 0;
+    tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    updateUI();
 }
 
-// Timer
+// ⭐ NEW: Update UI
+function updateUI() {
+    document.getElementById("xpCount").textContent = xp;
+
+    let level = Math.floor(xp / 100) + 1;
+    document.getElementById("level").textContent = level;
+
+    let xpProgress = xp % 100;
+    document.getElementById("xpFill").style.width = xpProgress + "%";
+
+    // Show tasks
+    let list = document.getElementById("taskList");
+    list.innerHTML = "";
+    tasks.forEach(task => {
+        let li = document.createElement("li");
+        li.textContent = task;
+        list.appendChild(li);
+    });
+}
+
+// Study planner (UPDATED)
+function addTask() {
+    let task = document.getElementById("task").value.trim();
+    if (task === "") return;
+
+    tasks.push(task);
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+
+    // ⭐ Add XP
+    xp += 10;
+    localStorage.setItem("xp", xp);
+
+    document.getElementById("task").value = "";
+    updateUI();
+}
+
+// Timer (UNCHANGED)
 let time = 1500;
 let timerRunning = false;
 
