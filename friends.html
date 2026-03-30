@@ -8,7 +8,7 @@
         .box { background: #f0f4f8; padding: 20px; margin: 15px auto; width: 320px; border-radius: 12px; }
         button { padding: 10px; margin: 5px; border-radius: 8px; border: none; cursor: pointer; background-color: #4CAF50; color: white; }
         input { padding: 8px; width: 70%; border-radius: 6px; border: 1px solid #ccc; margin-bottom: 10px; }
-        ul { list-style-type: none; padding: 0; }
+        ul { list-style: none; padding: 0; }
         li { margin: 8px 0; }
     </style>
 </head>
@@ -19,7 +19,7 @@
 <div class="box">
     <h3>Enter Your Username</h3>
     <input type="text" id="username" placeholder="Your name">
-    <button id="addUserBtn">Join</button>
+    <button id="joinBtn">Join</button>
 </div>
 
 <div class="box">
@@ -32,93 +32,65 @@
 <script>
 const apiURL = "https://69ca1193ba5984c44bf28521.mockapi.io/users";
 
-// Go back to home
+// Go home
 function goHome() {
     window.location.href = "index.html";
 }
 
-// Load leaderboard safely
+// Load leaderboard
 async function loadLeaderboard() {
     try {
         const res = await fetch(apiURL);
-        if (!res.ok) throw new Error("API request failed");
-
         const data = await res.json();
-        const list = document.getElementById("leaderboard");
-        if (!list) return;
 
+        const list = document.getElementById("leaderboard");
         list.innerHTML = "";
 
+        // Sort descending by XP
         data.sort((a, b) => Number(b.xp || 0) - Number(a.xp || 0));
 
         data.forEach(user => {
             const li = document.createElement("li");
-
-            const text = document.createElement("span");
-            text.textContent = `${user.username || "Unknown"} - ${user.xp || 0} XP`;
-
-            const btn = document.createElement("button");
-            btn.textContent = "+10 XP";
-            btn.addEventListener("click", () => addXP(user.id, 10));
-
-            li.appendChild(text);
-            li.appendChild(document.createTextNode(" "));
-            li.appendChild(btn);
-
+            li.textContent = `${user.username || "Unknown"} - ${user.xp || 0} XP`;
             list.appendChild(li);
         });
     } catch (err) {
         console.error("Leaderboard error:", err);
-        const list = document.getElementById("leaderboard");
-        if (list) list.innerHTML = "<li>⚠️ Failed to load leaderboard</li>";
+        document.getElementById("leaderboard").innerHTML = "<li>⚠️ Failed to load leaderboard</li>";
     }
 }
 
-// Add new user
+// Add user
 async function addUser() {
     const username = document.getElementById("username").value.trim();
     if (!username) return alert("Enter a username!");
 
     try {
-        await fetch(apiURL, {
+        const res = await fetch(apiURL, {
             method: "POST",
-            headers: {"Content-Type": "application/json"},
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username: username, xp: 0 })
         });
+        const newUser = await res.json();
+
+        // Save userId for study.html
+        localStorage.setItem("userId", newUser.id);
+
         document.getElementById("username").value = "";
         loadLeaderboard();
     } catch (err) {
-        console.error("Add user failed:", err);
+        console.error("Failed to add user:", err);
+        alert("Error adding user");
     }
 }
 
-// Update XP
-async function addXP(userId, amount) {
-    try {
-        const res = await fetch(`${apiURL}/${userId}`);
-        const user = await res.json();
+// Event listener for join button
+document.getElementById("joinBtn").addEventListener("click", addUser);
 
-        const newXP = Number(user.xp || 0) + amount;
-
-        await fetch(`${apiURL}/${userId}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ xp: newXP })
-        });
-
-        loadLeaderboard();
-    } catch (err) {
-        console.error("XP update failed:", err);
-    }
-}
-
-// Event listener for Add User button
-document.getElementById("addUserBtn").addEventListener("click", addUser);
-
-// Start the app
+// Auto-refresh leaderboard every 3 seconds
 window.addEventListener("DOMContentLoaded", () => {
     loadLeaderboard();
-    setInterval(loadLeaderboard, 3000); // auto-refresh every 3 seconds
+    setInterval(loadLeaderboard, 3000);
 });
 </script>
 
