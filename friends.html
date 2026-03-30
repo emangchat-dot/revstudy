@@ -1,59 +1,34 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>RevStudy - Friends</title>
-    <style>
-        body { font-family: Arial; text-align: center; padding: 20px; }
-        .box { background: #f0f4f8; padding: 20px; margin: 15px auto; width: 320px; border-radius: 12px; }
-        button { padding: 10px; margin: 5px; border-radius: 8px; border: none; cursor: pointer; background-color: #4CAF50; color: white; }
-        input { padding: 8px; width: 70%; border-radius: 6px; border: 1px solid #ccc; margin-bottom: 10px; }
-    </style>
-</head>
-<body>
-
-<h1>🌟 RevStudy Friends & Leaderboard</h1>
-
-<div class="box">
-    <h3>Enter Your Username</h3>
-    <input type="text" id="username" placeholder="Your name">
-    <button onclick="addUser()">Join</button>
-</div>
-
-<div class="box">
-    <h3>🏆 Leaderboard</h3>
-    <ul id="leaderboard"></ul>
-</div>
-
-<button onclick="goHome()">🏠 Back to Home</button>
-
 <script>
-const apiURL = "https://69ca1193ba5984c44bf28521.mockapi.io/users"; // REPLACE with your MockAPI URL
+const apiURL = "https://69ca1193ba5984c44bf28521.mockapi.io/users";
 
 function goHome() { window.location.href = "index.html"; }
 
 // Fetch and display leaderboard
 async function loadLeaderboard() {
-    const res = await fetch(apiURL);
-    const data = await res.json();
-    const list = document.getElementById("leaderboard");
-    list.innerHTML = "";
+    try {
+        const res = await fetch(apiURL);
+        const data = await res.json();
+        const list = document.getElementById("leaderboard");
+        list.innerHTML = "";
 
-    // Sort by XP descending
-    data.sort((a, b) => b.xp - a.xp);
+        // Sort by XP descending (ensure numbers)
+        data.sort((a, b) => Number(b.xp) - Number(a.xp));
 
-    data.forEach(user => {
-        const li = document.createElement("li");
-        li.textContent = `${user.username} - ${user.xp} XP`;
-        list.appendChild(li);
-    });
+        data.forEach(user => {
+            const li = document.createElement("li");
+            li.textContent = `${user.username} - ${user.xp} XP`;
+            list.appendChild(li);
+        });
+    } catch (err) {
+        console.error("Error loading leaderboard:", err);
+    }
 }
 
 // Add user
 async function addUser() {
     const username = document.getElementById("username").value.trim();
-    if(!username) return alert("Enter a username!");
+    if (!username) return alert("Enter a username!");
 
-    // Default XP = 0
     await fetch(apiURL, {
         method: "POST",
         headers: {"Content-Type": "application/json"},
@@ -66,7 +41,7 @@ async function addUser() {
 
 // Initial load
 loadLeaderboard();
-</script>
 
-</body>
-</html>
+// 🔄 Auto refresh every 3 seconds
+setInterval(loadLeaderboard, 3000);
+</script>
