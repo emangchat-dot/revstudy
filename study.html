@@ -28,13 +28,6 @@
             color: white;
         }
 
-        /* Completed task style */
-        .completed {
-            text-decoration: line-through;
-            opacity: 0.6;
-        }
-
-        /* XP BAR */
         .xp-bar {
             width: 320px;
             margin: 10px auto;
@@ -91,7 +84,7 @@ function goHome() {
 let xp = 0;
 let tasks = [];
 
-// LOAD
+// LOAD DATA
 function loadData() {
     xp = localStorage.getItem("xp") ? parseInt(localStorage.getItem("xp")) : 0;
     tasks = JSON.parse(localStorage.getItem("tasks")) || [];
@@ -115,13 +108,9 @@ function updateUI() {
         let li = document.createElement("li");
 
         let span = document.createElement("span");
-        span.textContent = task.text;
+        span.textContent = task;
 
-        if (task.completed) {
-            span.classList.add("completed");
-        }
-
-        // ✅ Finish button
+        // ✔ Finish button
         let finishBtn = document.createElement("button");
         finishBtn.textContent = "✔";
         finishBtn.onclick = () => completeTask(index);
@@ -137,7 +126,7 @@ function addTask() {
     let taskInput = document.getElementById("task").value.trim();
     if (taskInput === "") return;
 
-    tasks.push({ text: taskInput, completed: false });
+    tasks.push(taskInput);
     localStorage.setItem("tasks", JSON.stringify(tasks));
 
     xp += 10;
@@ -147,17 +136,16 @@ function addTask() {
     updateUI();
 }
 
-// ✅ COMPLETE TASK
+// ✔ COMPLETE TASK (REMOVES IT)
 function completeTask(index) {
-    if (!tasks[index].completed) {
-        tasks[index].completed = true;
+    tasks.splice(index, 1);
 
-        xp += 5; // bonus XP
-        localStorage.setItem("xp", xp);
-        localStorage.setItem("tasks", JSON.stringify(tasks));
+    localStorage.setItem("tasks", JSON.stringify(tasks));
 
-        updateUI();
-    }
+    xp += 5;
+    localStorage.setItem("xp", xp);
+
+    updateUI();
 }
 
 // TIMER
@@ -181,7 +169,7 @@ function startTimer() {
             clearInterval(interval);
             timerRunning = false;
 
-            playAlarm(); // 🔔 NEW
+            playAlarm();
             alert("Session complete! 🎉");
 
             time = 1500;
@@ -189,7 +177,7 @@ function startTimer() {
     }, 1000);
 }
 
-// 🔔 SIMPLE ALARM SOUND
+// 🔔 ALARM SOUND
 function playAlarm() {
     let audio = new Audio("https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg");
     audio.play();
