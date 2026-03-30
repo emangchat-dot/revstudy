@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RevStudy - Friends</title>
+    <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+            background: linear-gradient(to right, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+        }
+
+        .box {
+            background: white;
+            color: black;
+            padding: 20px;
+            margin: 15px auto;
+            width: 320px;
+            border-radius: 12px;
+        }
+
+        button {
+            padding: 10px;
+            margin: 5px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>👥 RevStudy - Friends & Profile</h1>
+
+<button onclick="goHome()">🏠 Home</button>
+
+<div class="box">
+    <h3>👤 Your Profile</h3>
+    <input type="text" id="username" placeholder="Enter username">
+    <button onclick="saveUser()">Save</button>
+
+    <p><strong>Name:</strong> <span id="displayName">Guest</span></p>
+    <p><strong>XP:</strong> <span id="userXP">0</span></p>
+</div>
+
+<div class="box">
+    <h3>🎯 Target Goal</h3>
+    <input type="number" id="goalXP" placeholder="Enter XP goal">
+    <button onclick="saveGoal()">Set Goal</button>
+
+    <p>Goal: <span id="goalDisplay">0</span> XP</p>
+</div>
+
+<div class="box">
+    <h3>🏆 Leaderboard (Local)</h3>
+    <button onclick="generateFakeFriends()">Load Friends</button>
+    <ul id="leaderboard"></ul>
+</div>
+
+<script>
+function goHome() {
+    window.location.href = "index.html";
+}
+
+// LOAD DATA
+let xp = localStorage.getItem("xp") ? parseInt(localStorage.getItem("xp")) : 0;
+
+window.onload = function () {
+    document.getElementById("userXP").textContent = xp;
+
+    let name = localStorage.getItem("username") || "Guest";
+    document.getElementById("displayName").textContent = name;
+
+    let goal = localStorage.getItem("goal") || 0;
+    document.getElementById("goalDisplay").textContent = goal;
+}
+
+// SAVE USERNAME
+function saveUser() {
+    let name = document.getElementById("username").value;
+    localStorage.setItem("username", name);
+    document.getElementById("displayName").textContent = name;
+}
+
+// SAVE GOAL
+function saveGoal() {
+    let goal = document.getElementById("goalXP").value;
+    localStorage.setItem("goal", goal);
+    document.getElementById("goalDisplay").textContent = goal;
+}
+
+// FAKE FRIENDS (for now)
+function generateFakeFriends() {
+    let friends = [
+        {name: "Alex", xp: 120},
+        {name: "Sam", xp: 250},
+        {name: "Jordan", xp: 180},
+        {name: "Taylor", xp: 300}
+    ];
+
+    // Add YOU into leaderboard
+    let user = {
+        name: localStorage.getItem("username") || "You",
+        xp: xp
+    };
+
+    friends.push(user);
+
+    // Sort leaderboard
+    friends.sort((a, b) => b.xp - a.xp);
+
+    let list = document.getElementById("leaderboard");
+    list.innerHTML = "";
+
+    friends.forEach(f => {
+        let li = document.createElement("li");
+        li.textContent = f.name + " - " + f.xp + " XP";
+        list.appendChild(li);
+    });
+}
+</script>
+
+</body>
+</html>
