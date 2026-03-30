@@ -3,117 +3,93 @@
 <head>
     <title>RevStudy - Study</title>
     <style>
-        body {
-            font-family: Arial;
-            text-align: center;
-            padding: 20px;
-            background: linear-gradient(to right, #74ebd5, #ACB6E5);
-        }
-
-        .box {
-            background: white;
-            padding: 20px;
-            margin: 15px auto;
-            width: 320px;
-            border-radius: 12px;
-        }
-
-        button {
-            padding: 10px;
-            margin: 5px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            background-color: #4CAF50;
-            color: white;
-        }
-
-        .xp-bar {
-            width: 320px;
-            margin: 10px auto;
-            background: #ddd;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .xp-fill {
-            height: 20px;
-            width: 0%;
-            background: #4CAF50;
-            transition: width 0.3s;
-        }
+        body { font-family: Arial; text-align: center; padding: 20px; background: linear-gradient(to right, #74ebd5, #ACB6E5); }
+        .box { background: white; padding: 20px; margin: 15px auto; width: 320px; border-radius: 12px; }
+        button { padding: 10px; margin: 5px; border-radius: 8px; border: none; cursor: pointer; background-color: #4CAF50; color: white; }
+        .xp-bar { width: 320px; margin: 10px auto; background: #ddd; border-radius: 10px; overflow: hidden; }
+        .xp-fill { height: 20px; width: 0%; background: #4CAF50; transition: width 0.3s; }
+        ul { list-style: none; padding: 0; }
+        li { margin: 5px 0; }
     </style>
 </head>
-
 <body>
 
 <h1>📚 RevStudy - Study Mode</h1>
 
-<button onclick="goHome()">🏠 Back to Home</button>
-
 <h2>⭐ XP: <span id="xpCount">0</span></h2>
 <h3>🏆 Level: <span id="level">1</span></h3>
 
-<div class="xp-bar">
-    <div class="xp-fill" id="xpFill"></div>
-</div>
+<div class="xp-bar"><div class="xp-fill" id="xpFill"></div></div>
 
 <div class="box">
     <h3>🎯 Study Planner</h3>
     <input type="text" id="task" placeholder="Enter task">
-    <button onclick="addTask()">Add Task (+10 XP)</button>
+    <button id="addTaskBtn">Add Task (+10 XP)</button>
     <ul id="taskList"></ul>
 </div>
 
-<div class="box">
-    <h3>⏱️ Focus Timer</h3>
-    <p id="timer">25:00</p>
-    <button onclick="startTimer()">Start</button>
-</div>
-
 <script>
-window.onload = function () {
-    loadData();
-}
+const apiURL = "https://69ca1193ba5984c44bf28521.mockapi.io/users";
 
-function goHome() {
-    window.location.href = "index.html";
-}
-
-// DATA
-let xp = 0;
+let userId = localStorage.getItem("userId"); // User must have joined via friends.html
 let tasks = [];
+let xp = 0;
 
-// LOAD DATA
-function loadData() {
-    xp = localStorage.getItem("xp") ? parseInt(localStorage.getItem("xp")) : 0;
-    tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-    updateUI();
+// Load user XP and tasks
+async function loadUser() {
+    if (!userId) return alert("No user logged in. Join via friends.html first.");
+
+    try {
+        const res = await fetch(`${apiURL}/${userId}`);
+        const user = await res.json();
+        xp = Number(user.xp || 0);
+        updateUI();
+    } catch (err) {
+        console.error("Failed to load user:", err);
+    }
 }
 
-// UPDATE UI
+// Update XP in API
+async function updateXP(amount) {
+    if (!userId) return;
+
+    try {
+        const res = await fetch(`${apiURL}/${userId}`);
+        const user = await res.json();
+
+        const newXP = Number(user.xp || 0) + amount;
+
+        await fetch(`${apiURL}/${userId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ xp: newXP })
+        });
+
+        xp = newXP;
+        updateUI();
+    } catch (err) {
+        console.error("Failed to update XP:", err);
+    }
+}
+
+// Update UI
 function updateUI() {
     document.getElementById("xpCount").textContent = xp;
-
     let level = Math.floor(xp / 100) + 1;
     document.getElementById("level").textContent = level;
-
     let xpProgress = xp % 100;
     document.getElementById("xpFill").style.width = xpProgress + "%";
 
-    let list = document.getElementById("taskList");
+    const list = document.getElementById("taskList");
     list.innerHTML = "";
-
-    tasks.forEach((task, index) => {
-        let li = document.createElement("li");
-
-        let span = document.createElement("span");
+    tasks.forEach((task, i) => {
+        const li = document.createElement("li");
+        const span = document.createElement("span");
         span.textContent = task;
 
-        // ✔ Finish button
-        let finishBtn = document.createElement("button");
+        const finishBtn = document.createElement("button");
         finishBtn.textContent = "✔";
-        finishBtn.onclick = () => completeTask(index);
+        finishBtn.onclick = () => completeTask(i);
 
         li.appendChild(span);
         li.appendChild(finishBtn);
@@ -121,67 +97,26 @@ function updateUI() {
     });
 }
 
-// ADD TASK
-function addTask() {
-    let taskInput = document.getElementById("task").value.trim();
-    if (taskInput === "") return;
+// Add Task
+document.getElementById("addTaskBtn").addEventListener("click", () => {
+    const taskInput = document.getElementById("task").value.trim();
+    if (!taskInput) return;
 
     tasks.push(taskInput);
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-
-    xp += 10;
-    localStorage.setItem("xp", xp);
-
     document.getElementById("task").value = "";
     updateUI();
-}
+    updateXP(10); // +10 XP per task
+});
 
-// ✔ COMPLETE TASK (REMOVES IT)
+// Complete Task
 function completeTask(index) {
     tasks.splice(index, 1);
-
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-
-    xp += 5;
-    localStorage.setItem("xp", xp);
-
     updateUI();
+    updateXP(5); // +5 XP per completed task
 }
 
-// TIMER
-let time = 1500;
-let timerRunning = false;
-
-function startTimer() {
-    if (timerRunning) return;
-    timerRunning = true;
-
-    let interval = setInterval(() => {
-        let minutes = Math.floor(time / 60);
-        let seconds = time % 60;
-
-        document.getElementById("timer").textContent =
-            `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
-
-        time--;
-
-        if (time < 0) {
-            clearInterval(interval);
-            timerRunning = false;
-
-            playAlarm();
-            alert("Session complete! 🎉");
-
-            time = 1500;
-        }
-    }, 1000);
-}
-
-// 🔔 ALARM SOUND
-function playAlarm() {
-    let audio = new Audio("https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg");
-    audio.play();
-}
+// Initial load
+loadUser();
 </script>
 
 </body>
