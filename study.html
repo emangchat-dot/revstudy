@@ -28,7 +28,13 @@
             color: white;
         }
 
-        /* NEW XP BAR */
+        /* Completed task style */
+        .completed {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
+        /* XP BAR */
         .xp-bar {
             width: 320px;
             margin: 10px auto;
@@ -52,7 +58,6 @@
 
 <button onclick="goHome()">🏠 Back to Home</button>
 
-<!-- ⭐ NEW XP DISPLAY -->
 <h2>⭐ XP: <span id="xpCount">0</span></h2>
 <h3>🏆 Level: <span id="level">1</span></h3>
 
@@ -75,7 +80,6 @@
 
 <script>
 window.onload = function () {
-    document.body.classList.add("loaded");
     loadData();
 }
 
@@ -83,17 +87,18 @@ function goHome() {
     window.location.href = "index.html";
 }
 
-// ⭐ NEW: Load saved data
+// DATA
 let xp = 0;
 let tasks = [];
 
+// LOAD
 function loadData() {
     xp = localStorage.getItem("xp") ? parseInt(localStorage.getItem("xp")) : 0;
     tasks = JSON.parse(localStorage.getItem("tasks")) || [];
     updateUI();
 }
 
-// ⭐ NEW: Update UI
+// UPDATE UI
 function updateUI() {
     document.getElementById("xpCount").textContent = xp;
 
@@ -103,25 +108,38 @@ function updateUI() {
     let xpProgress = xp % 100;
     document.getElementById("xpFill").style.width = xpProgress + "%";
 
-    // Show tasks
     let list = document.getElementById("taskList");
     list.innerHTML = "";
-    tasks.forEach(task => {
+
+    tasks.forEach((task, index) => {
         let li = document.createElement("li");
-        li.textContent = task;
+
+        let span = document.createElement("span");
+        span.textContent = task.text;
+
+        if (task.completed) {
+            span.classList.add("completed");
+        }
+
+        // ✅ Finish button
+        let finishBtn = document.createElement("button");
+        finishBtn.textContent = "✔";
+        finishBtn.onclick = () => completeTask(index);
+
+        li.appendChild(span);
+        li.appendChild(finishBtn);
         list.appendChild(li);
     });
 }
 
-// Study planner (UPDATED)
+// ADD TASK
 function addTask() {
-    let task = document.getElementById("task").value.trim();
-    if (task === "") return;
+    let taskInput = document.getElementById("task").value.trim();
+    if (taskInput === "") return;
 
-    tasks.push(task);
+    tasks.push({ text: taskInput, completed: false });
     localStorage.setItem("tasks", JSON.stringify(tasks));
 
-    // ⭐ Add XP
     xp += 10;
     localStorage.setItem("xp", xp);
 
@@ -129,7 +147,20 @@ function addTask() {
     updateUI();
 }
 
-// Timer (UNCHANGED)
+// ✅ COMPLETE TASK
+function completeTask(index) {
+    if (!tasks[index].completed) {
+        tasks[index].completed = true;
+
+        xp += 5; // bonus XP
+        localStorage.setItem("xp", xp);
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+
+        updateUI();
+    }
+}
+
+// TIMER
 let time = 1500;
 let timerRunning = false;
 
@@ -149,10 +180,19 @@ function startTimer() {
         if (time < 0) {
             clearInterval(interval);
             timerRunning = false;
+
+            playAlarm(); // 🔔 NEW
             alert("Session complete! 🎉");
+
             time = 1500;
         }
     }, 1000);
+}
+
+// 🔔 SIMPLE ALARM SOUND
+function playAlarm() {
+    let audio = new Audio("https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg");
+    audio.play();
 }
 </script>
 
