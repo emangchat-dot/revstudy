@@ -1,3 +1,4 @@
+<html>
 <script>
 const apiURL = "https://69ca1193ba5984c44bf28521.mockapi.io/users";
 
@@ -7,20 +8,32 @@ function goHome() { window.location.href = "index.html"; }
 async function loadLeaderboard() {
     try {
         const res = await fetch(apiURL);
+
+        // Check if API failed
+        if (!res.ok) throw new Error("API request failed");
+
         const data = await res.json();
+
         const list = document.getElementById("leaderboard");
+        if (!list) return;
+
         list.innerHTML = "";
 
-        // Sort by XP descending (ensure numbers)
-        data.sort((a, b) => Number(b.xp) - Number(a.xp));
+        // Ensure safe sorting
+        data.sort((a, b) => Number(b.xp || 0) - Number(a.xp || 0));
 
         data.forEach(user => {
             const li = document.createElement("li");
-            li.textContent = `${user.username} - ${user.xp} XP`;
+            li.textContent = `${user.username || "Unknown"} - ${user.xp || 0} XP`;
             list.appendChild(li);
         });
+
     } catch (err) {
-        console.error("Error loading leaderboard:", err);
+        console.error("Leaderboard error:", err);
+
+        // Show error on page instead of blank screen
+        document.getElementById("leaderboard").innerHTML =
+            "<li>⚠️ Failed to load leaderboard</li>";
     }
 }
 
@@ -29,19 +42,25 @@ async function addUser() {
     const username = document.getElementById("username").value.trim();
     if (!username) return alert("Enter a username!");
 
-    await fetch(apiURL, {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ username: username, xp: 0 })
-    });
+    try {
+        await fetch(apiURL, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ username: username, xp: 0 })
+        });
 
-    document.getElementById("username").value = "";
-    loadLeaderboard();
+        document.getElementById("username").value = "";
+        loadLeaderboard();
+    } catch (err) {
+        alert("Failed to add user");
+        console.error(err);
+    }
 }
 
-// Initial load
-loadLeaderboard();
-
-// 🔄 Auto refresh every 3 seconds
-setInterval(loadLeaderboard, 3000);
+// Run AFTER page loads
+window.onload = () => {
+    loadLeaderboard();
+    setInterval(loadLeaderboard, 3000);
+};
 </script>
+</html>
