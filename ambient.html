@@ -75,7 +75,7 @@
 <div id="tab-3" class="tab-content">
     <div class="feature-box">
         <button onclick="generateQuestion()">Generate Question</button>
-        <p id="aiQuestion">Your question will appear here.</p>
+        <p id="aiQuestion">Your AI-generated question will appear here.</p>
     </div>
 </div>
 
@@ -91,10 +91,9 @@
 </div>
 
 <script>
-// Fade in
 window.onload = () => document.body.classList.add("loaded");
 
-// Tabs
+// --- Tabs ---
 const tabs = document.querySelectorAll(".tab");
 const contents = document.querySelectorAll(".tab-content");
 tabs.forEach(tab=>{
@@ -106,7 +105,7 @@ tabs.forEach(tab=>{
     });
 });
 
-// AI Painting Backgrounds
+// --- AI Backgrounds ---
 let aiBackgrounds = [
   "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1470&q=80",
   "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1470&q=80",
@@ -140,36 +139,57 @@ const heatmapGrid = document.getElementById('heatmapGrid');
 let today = new Date();
 let storedData = JSON.parse(localStorage.getItem('studyData') || '{}');
 
-// Generate 35 days (5 weeks)
-for(let i=34;i>=0;i--){
-    let day = new Date();
-    day.setDate(today.getDate()-i);
-    let dayKey = day.toISOString().split('T')[0];
-    let minutes = storedData[dayKey] || 0;
-    let cell = document.createElement('div');
-    cell.classList.add('heatmap-cell');
-    let intensity = Math.min(minutes/120,1); // assume max 120 min for color scale
-    cell.style.backgroundColor = `rgba(0,255,0,${intensity})`;
-    cell.title = `${dayKey}: ${minutes} min`;
-    heatmapGrid.appendChild(cell);
+function renderHeatmap(){
+    heatmapGrid.innerHTML='';
+    for(let i=34;i>=0;i--){
+        let day = new Date();
+        day.setDate(today.getDate()-i);
+        let dayKey = day.toISOString().split('T')[0];
+        let minutes = storedData[dayKey] || 0;
+        let cell = document.createElement('div');
+        cell.classList.add('heatmap-cell');
+        let intensity = Math.min(minutes/120,1);
+        cell.style.backgroundColor = `rgba(0,255,0,${intensity})`;
+        cell.title = `${dayKey}: ${minutes} min`;
+        heatmapGrid.appendChild(cell);
+    }
 }
+renderHeatmap();
 
-// --- AI Question Creator ---
-function generateQuestion(){
-    const topics=["Math","Science","English","History"];
-    const questions=["Explain the theory in 3 sentences.","Solve this problem: 12 + 7 × 3","Define the term and give an example.","Summarize this concept in your own words."];
-    const topic=topics[Math.floor(Math.random()*topics.length)];
-    const question=questions[Math.floor(Math.random()*questions.length)];
-    document.getElementById('aiQuestion').textContent=`Topic: ${topic} | Question: ${question}`;
+// --- AI Question Creator (Real AI) ---
+async function generateQuestion() {
+    const topic = prompt("Enter a topic for your AI question:");
+    if (!topic) return;
+
+    const questionBox = document.getElementById('aiQuestion');
+    questionBox.textContent = "Generating AI question...";
+
+    try {
+        const response = await fetch('/generate-question', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ topic })
+        });
+
+        if (!response.ok) throw new Error("Server error");
+
+        const data = await response.json();
+        questionBox.textContent = data.question;
+    } catch (err) {
+        console.error(err);
+        questionBox.textContent = "Error generating question. Try again.";
+    }
 }
 
 // --- Mistakes & Feedback ---
-let mistakes=[];
+let mistakes = JSON.parse(localStorage.getItem('mistakes') || '[]');
 function addMistake(text){
     mistakes.push(text);
+    localStorage.setItem('mistakes', JSON.stringify(mistakes));
     const box=document.getElementById('mistakeBox');
-    box.innerHTML=mistakes.map((m,i)=>`#${i+1}: ${m}`).join('<br>');
+    box.innerHTML = mistakes.length ? mistakes.map((m,i)=>`#${i+1}: ${m}`).join('<br>') : "No mistakes yet.";
 }
+addMistake(""); // refresh UI on load
 
 // --- Study Time Stats ---
 let totalStudy = Object.values(storedData).reduce((a,b)=>a+b,0);
@@ -177,27 +197,16 @@ document.getElementById('studyStat').textContent=`Total Study: ${totalStudy} min
 
 function addStudyFromInput(){
     let input = parseInt(document.getElementById('studyInput').value);
-    if(!input) return;
+    if(!input || input < 0) return alert("Enter a valid positive number.");
+
     let dayKey = today.toISOString().split('T')[0];
     storedData[dayKey] = (storedData[dayKey] || 0) + input;
     localStorage.setItem('studyData', JSON.stringify(storedData));
-    // update heatmap and total
+
     totalStudy += input;
     document.getElementById('studyStat').textContent=`Total Study: ${totalStudy} min`;
-    // update today's cell
-    heatmapGrid.innerHTML='';
-    for(let i=34;i>=0;i--){
-        let day = new Date();
-        day.setDate(today.getDate()-i);
-        let dKey = day.toISOString().split('T')[0];
-        let min = storedData[dKey] || 0;
-        let cell = document.createElement('div');
-        cell.classList.add('heatmap-cell');
-        let intensity = Math.min(min/120,1);
-        cell.style.backgroundColor = `rgba(0,255,0,${intensity})`;
-        cell.title = `${dKey}: ${min} min`;
-        heatmapGrid.appendChild(cell);
-    }
+
+    renderHeatmap();
 }
 </script>
 
