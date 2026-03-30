@@ -1,7 +1,9 @@
 <script>
 const apiURL = "https://69ca1193ba5984c44bf28521.mockapi.io/users";
 
-function goHome() { window.location.href = "index.html"; }
+function goHome() {
+    window.location.href = "index.html";
+}
 
 // 🔄 Load leaderboard
 async function loadLeaderboard() {
@@ -10,6 +12,8 @@ async function loadLeaderboard() {
         const data = await res.json();
 
         const list = document.getElementById("leaderboard");
+        if (!list) return;
+
         list.innerHTML = "";
 
         // Sort by XP
@@ -18,17 +22,32 @@ async function loadLeaderboard() {
         data.forEach(user => {
             const li = document.createElement("li");
 
-            // 👇 Added XP button for testing
-            li.innerHTML = `
-                ${user.username || "Unknown"} - ${user.xp || 0} XP
-                <button onclick="addXP('${user.id}', 10)">+10 XP</button>
-            `;
+            // Text
+            const text = document.createElement("span");
+            text.textContent = `${user.username || "Unknown"} - ${user.xp || 0} XP`;
+
+            // Button
+            const btn = document.createElement("button");
+            btn.textContent = "+10 XP";
+
+            btn.addEventListener("click", () => {
+                addXP(user.id, 10);
+            });
+
+            li.appendChild(text);
+            li.appendChild(document.createTextNode(" "));
+            li.appendChild(btn);
 
             list.appendChild(li);
         });
 
     } catch (err) {
         console.error("Leaderboard error:", err);
+
+        const list = document.getElementById("leaderboard");
+        if (list) {
+            list.innerHTML = "<li>⚠️ Failed to load leaderboard</li>";
+        }
     }
 }
 
@@ -37,26 +56,29 @@ async function addUser() {
     const username = document.getElementById("username").value.trim();
     if (!username) return alert("Enter a username!");
 
-    await fetch(apiURL, {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ username: username, xp: 0 })
-    });
+    try {
+        await fetch(apiURL, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ username: username, xp: 0 })
+        });
 
-    document.getElementById("username").value = "";
-    loadLeaderboard();
+        document.getElementById("username").value = "";
+        loadLeaderboard();
+
+    } catch (err) {
+        console.error("Add user failed:", err);
+    }
 }
 
-// ⭐ NEW: Update XP
+// ⭐ Update XP
 async function addXP(userId, amount) {
     try {
-        // Get current user data
         const res = await fetch(`${apiURL}/${userId}`);
         const user = await res.json();
 
         const newXP = Number(user.xp || 0) + amount;
 
-        // Update XP in database
         await fetch(`${apiURL}/${userId}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
