@@ -1,42 +1,53 @@
-import express from 'express';
-import fetch from 'node-fetch';
-import dotenv from 'dotenv';
+// ai.js - Node.js server for RevStudy AI questions
 
-dotenv.config(); // loads your .env file
+// 1️⃣ Load environment variables
+require('dotenv').config();
+
+const express = require('express');
+const fetch = require('node-fetch');
+const path = require('path');
 
 const app = express();
-app.use(express.json());
-app.use(express.static('public')); // serves ambient.html from public folder
+const PORT = 3000;
 
-// AI question endpoint
-app.post('/generate-question', async (req, res) => {
-    const { topic } = req.body;
-    if (!topic) return res.status(400).json({ error: "Topic is required" });
+// 2️⃣ Serve static files (ambient.html and other assets)
+app.use(express.static(path.join(__dirname, 'public')));
 
+// 3️⃣ Endpoint to generate AI questions
+app.get('/generate-question', async (req, res) => {
     try {
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        const apiKey = process.env.OPENAI_API_KEY;
+        if (!apiKey) {
+            return res.status(500).json({ error: 'OpenAI API key not provided' });
+        }
+
+        // Example: simple prompt for question generation
+        const prompt = "Generate a random study question with a topic and a short task.";
+
+        const response = await fetch('https://api.openai.com/v1/completions', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`,
             },
             body: JSON.stringify({
-                model: "gpt-4",
-                messages: [
-                    { role: "system", content: "You are a helpful study assistant." },
-                    { role: "user", content: `Generate a concise study question about "${topic}".` }
-                ],
-                max_tokens: 100
-            })
+                model: 'text-davinci-003', // or 'gpt-3.5-turbo' if using chat API
+                prompt: prompt,
+                max_tokens: 60,
+            }),
         });
 
-        const result = await response.json();
-        const question = result.choices[0].message.content;
+        const data = await response.json();
+        const question = data.choices?.[0]?.text?.trim() || "No question generated.";
+
         res.json({ question });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "AI request failed" });
+    } catch (error) {
+        console.error("Error generating question:", error);
+        res.status(500).json({ error: 'Error generating question' });
     }
 });
 
-app.listen(3000, () => console.log("Server running on http://localhost:3000"));
+// 4️⃣ Start the server
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+});
