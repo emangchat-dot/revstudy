@@ -188,10 +188,24 @@ animateParticles();
 // AI (REPLIT)
 async function generateQuestion() {
     try {
-        const res = await fetch("https://revstudy-ai--emangchat.replit.app", {method:"POST"});
+        const res = await fetch("https://revstudy-ai--emangchat.replit.app", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                topic: "student mental health issues",
+                type: "multiple-choice",
+                number: 1
+            })
+        });
         const data = await res.json();
-        document.getElementById("questionBox").textContent = data.question;
-    } catch {
+        if(data && data.question) {
+            document.getElementById("questionBox").textContent = data.question;
+        } else {
+            document.getElementById("questionBox").textContent = "No question returned.";
+            console.log(data);
+        }
+    } catch (err) {
+        console.error(err);
         document.getElementById("questionBox").textContent = "Error generating question.";
     }
 }
