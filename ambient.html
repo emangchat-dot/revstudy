@@ -1,212 +1,240 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
     <title>RevStudy - Ambient Mode</title>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins&display=swap" rel="stylesheet">
-    <!-- Chart.js for Future-You Predictor -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
         body {
             margin: 0;
-            height: 100vh;
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             color: white;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
+            text-align: center;
+            overflow-x: hidden;
+        }
+
+        /* BACKGROUND LAYER */
+        #bg {
+            position: fixed;
+            width: 100%;
+            height: 100%;
             background-size: cover;
             background-position: center;
-            transition: opacity 0.5s;
-            opacity: 0;
-        }
-        body.loaded { opacity: 1; }
-
-        h1 {
-            font-family: 'Pacifico', cursive;
-            font-size: 50px;
-            margin: 20px 0;
+            z-index: -3;
+            transition: background-image 1s ease-in-out;
         }
 
-        /* Tabs */
-        .tabs { display: flex; margin-bottom: 20px; }
-        .tab { padding: 10px 20px; cursor: pointer; background: rgba(0,0,0,0.5); margin: 0 5px; border-radius: 8px; transition: background 0.3s; }
-        .tab.active { background: rgba(255,255,255,0.3); }
+        /* GRADIENT OVERLAY */
+        #gradient {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(-45deg, #667eea, #764ba2, #6dd5ed, #2193b0);
+            background-size: 400% 400%;
+            animation: gradientMove 15s ease infinite;
+            opacity: 0.5;
+            z-index: -2;
+        }
 
-        /* Content */
-        .tab-content { display: none; width: 90%; max-width: 800px; background: rgba(0,0,0,0.5); padding: 20px; border-radius: 12px; margin-bottom: 20px; }
-        .tab-content.active { display: block; }
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
 
-        .feature-box { background: rgba(255,255,255,0.1); padding: 15px; margin: 10px 0; border-radius: 10px; }
+        /* PARTICLES */
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
 
-        button { padding: 8px 15px; margin-top: 10px; border-radius: 6px; border: none; cursor: pointer; font-family: 'Poppins', sans-serif; }
+        .overlay {
+            padding: 20px;
+        }
 
-        /* Heatmap */
-        .heatmap-grid { display: grid; grid-template-columns: repeat(7, 40px); grid-gap: 5px; justify-content: center; }
-        .heatmap-cell { width: 40px; height: 40px; border-radius: 4px; background: rgba(255,255,255,0.1); display:flex; align-items:center; justify-content:center; font-size:12px; cursor:pointer; }
+        .box {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            margin: 15px auto;
+            width: 320px;
+            border-radius: 15px;
+        }
+
+        button {
+            padding: 10px;
+            margin: 5px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            background: #4CAF50;
+            color: white;
+        }
     </style>
 </head>
+
 <body>
 
-<h1>🌌 RevStudy - Ambient Mode</h1>
+<div id="bg"></div>
+<div id="gradient"></div>
+<canvas id="particles"></canvas>
 
-<!-- Tabs -->
-<div class="tabs">
-    <div class="tab active" data-tab="1">Future-You</div>
-    <div class="tab" data-tab="2">Heatmap</div>
-    <div class="tab" data-tab="3">AI Questions</div>
-    <div class="tab" data-tab="4">Mistakes & Feedback</div>
-    <div class="tab" data-tab="5">Study Stats</div>
+<div class="overlay">
+
+<h1>🌌 RevStudy Ambient Mode</h1>
+
+<button onclick="goHome()">🏠 Home</button>
+<button onclick="changeBackground()">🎨 Change Background</button>
+
+<!-- AI QUESTION -->
+<div class="box">
+    <h3>🧠 AI Question</h3>
+    <p id="questionBox">Click generate</p>
+    <button onclick="generateQuestion()">Generate</button>
 </div>
 
-<!-- Tab Contents -->
-<div id="tab-1" class="tab-content active">
-    <div class="feature-box">
-        <canvas id="futureChart" width="400" height="200"></canvas>
-    </div>
+<!-- MUSIC PLAYER -->
+<div class="box">
+    <h3>🎧 Music</h3>
+    <audio controls loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3">
+    </audio>
 </div>
 
-<div id="tab-2" class="tab-content">
-    <div class="feature-box heatmap-grid" id="heatmapGrid"></div>
+<!-- HEATMAP -->
+<div class="box">
+    <h3>📊 Study Heatmap</h3>
+    <div id="heatmap"></div>
 </div>
 
-<div id="tab-3" class="tab-content">
-    <div class="feature-box">
-        <button onclick="generateQuestion()">Generate Question</button>
-        <p id="aiQuestion">Your AI-generated question will appear here.</p>
-    </div>
+<!-- FUTURE -->
+<div class="box">
+    <h3>📈 Future You</h3>
+    <p id="futureText"></p>
+    <button onclick="predictFuture()">Predict</button>
 </div>
 
-<div id="tab-4" class="tab-content">
-    <div id="mistakeBox" class="feature-box">No mistakes yet.</div>
-    <button onclick="addMistake('Forgot formula in Math')">Add Mistake</button>
+<!-- FEEDBACK -->
+<div class="box">
+    <h3>🤖 Feedback</h3>
+    <p id="aiFeedback"></p>
+    <button onclick="generateFeedback()">Get Feedback</button>
 </div>
 
-<div id="tab-5" class="tab-content">
-    <div id="studyStat" class="feature-box">Total Study: 0 min</div>
-    <input type="number" id="studyInput" placeholder="Minutes studied">
-    <button onclick="addStudyFromInput()">Add Study</button>
 </div>
 
 <script>
-window.onload = () => document.body.classList.add("loaded");
+// NAV
+function goHome() {
+    window.location.href = "index.html";
+}
 
-// --- Tabs ---
-const tabs = document.querySelectorAll(".tab");
-const contents = document.querySelectorAll(".tab-content");
-tabs.forEach(tab=>{
-    tab.addEventListener("click", ()=>{
-        tabs.forEach(t=>t.classList.remove("active"));
-        tab.classList.add("active");
-        contents.forEach(c=>c.classList.remove("active"));
-        document.getElementById("tab-"+tab.dataset.tab).classList.add("active");
-    });
-});
-
-// --- AI Backgrounds ---
-let aiBackgrounds = [
-  "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1470&q=80",
-  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1470&q=80",
-  "https://images.unsplash.com/photo-1521747116042-5a810fda9664?auto=format&fit=crop&w=1470&q=80",
-  "https://images.unsplash.com/photo-1491553895911-0055eca6402d?auto=format&fit=crop&w=1470&q=80",
-  "https://images.unsplash.com/photo-1535223289827-42f1e9919769?auto=format&fit=crop&w=1470&q=80"
+// BACKGROUNDS
+const backgrounds = [
+"https://images.unsplash.com/photo-1506744038136-46273834b3fb",
+"https://images.unsplash.com/photo-1499084732479-de2c02d45fc4",
+"https://images.unsplash.com/photo-1470770841072-f978cf4d019e",
+"https://images.unsplash.com/photo-1501785888041-af3ef285b470"
 ];
-let bgIndex=0;
-function changeBackground(){
-    document.body.style.backgroundImage=`url('${aiBackgrounds[bgIndex]}')`;
-    bgIndex=(bgIndex+1)%aiBackgrounds.length;
+
+let currentBg = 0;
+
+function setBackground(i) {
+    document.getElementById("bg").style.backgroundImage = `url('${backgrounds[i]}')`;
 }
-changeBackground();
-setInterval(changeBackground,20000);
 
-// --- Future-You Predictor ---
-const ctx = document.getElementById('futureChart').getContext('2d');
-const futureChart = new Chart(ctx,{type:'line',data:{
-    labels:['Week 1','Week 2','Week 3','Week 4','Week 5'],
-    datasets:[{
-        label:'Projected Progress',
-        data:[2,4,6,8,10],
-        borderColor:'rgba(255,255,255,0.8)',
-        backgroundColor:'rgba(255,255,255,0.2)',
-        tension:0.3
-    }]
-},options:{responsive:true,plugins:{legend:{display:true,labels:{color:'white'}}},scales:{y:{ticks:{color:'white'}},x:{ticks:{color:'white'}}}}});
-
-// --- Heatmap ---
-const heatmapGrid = document.getElementById('heatmapGrid');
-let today = new Date();
-let storedData = JSON.parse(localStorage.getItem('studyData') || '{}');
-
-function renderHeatmap(){
-    heatmapGrid.innerHTML='';
-    for(let i=34;i>=0;i--){
-        let day = new Date();
-        day.setDate(today.getDate()-i);
-        let dayKey = day.toISOString().split('T')[0];
-        let minutes = storedData[dayKey] || 0;
-        let cell = document.createElement('div');
-        cell.classList.add('heatmap-cell');
-        let intensity = Math.min(minutes/120,1);
-        cell.style.backgroundColor = `rgba(0,255,0,${intensity})`;
-        cell.title = `${dayKey}: ${minutes} min`;
-        heatmapGrid.appendChild(cell);
-    }
+function changeBackground() {
+    currentBg = (currentBg + 1) % backgrounds.length;
+    setBackground(currentBg);
 }
-renderHeatmap();
 
-// --- AI Question Creator (Real AI) ---
+setInterval(changeBackground, 20000);
+setBackground(currentBg);
+
+// PARTICLES
+const canvas = document.getElementById("particles");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particles = [];
+
+for (let i = 0; i < 80; i++) {
+    particles.push({
+        x: Math.random()*canvas.width,
+        y: Math.random()*canvas.height,
+        r: Math.random()*2,
+        dx: Math.random()-0.5,
+        dy: Math.random()-0.5
+    });
+}
+
+function animateParticles() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fillStyle="white";
+        ctx.fill();
+
+        p.x += p.dx;
+        p.y += p.dy;
+    });
+    requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
+// AI (REPLIT)
 async function generateQuestion() {
-    const topic = prompt("Enter a topic for your AI question:");
-    if (!topic) return;
-
-    const questionBox = document.getElementById('aiQuestion');
-    questionBox.textContent = "Generating AI question...";
-
     try {
-        const response = await fetch('/generate-question', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ topic })
-        });
-
-        if (!response.ok) throw new Error("Server error");
-
-        const data = await response.json();
-        questionBox.textContent = data.question;
-    } catch (err) {
-        console.error(err);
-        questionBox.textContent = "Error generating question. Try again.";
+        const res = await fetch("https://YOUR-REPL-URL/generate", {method:"POST"});
+        const data = await res.json();
+        document.getElementById("questionBox").textContent = data.question;
+    } catch {
+        document.getElementById("questionBox").textContent = "Error generating question.";
     }
 }
 
-// --- Mistakes & Feedback ---
-let mistakes = JSON.parse(localStorage.getItem('mistakes') || '[]');
-function addMistake(text){
-    mistakes.push(text);
-    localStorage.setItem('mistakes', JSON.stringify(mistakes));
-    const box=document.getElementById('mistakeBox');
-    box.innerHTML = mistakes.length ? mistakes.map((m,i)=>`#${i+1}: ${m}`).join('<br>') : "No mistakes yet.";
+// HEATMAP
+function loadHeatmap() {
+    let data = JSON.parse(localStorage.getItem("studyData")) || {};
+    let heat = document.getElementById("heatmap");
+    heat.innerHTML = "";
+
+    for (let d in data) {
+        let div = document.createElement("div");
+        div.textContent = d + ": " + data[d] + " min";
+        heat.appendChild(div);
+    }
 }
-addMistake(""); // refresh UI on load
+loadHeatmap();
 
-// --- Study Time Stats ---
-let totalStudy = Object.values(storedData).reduce((a,b)=>a+b,0);
-document.getElementById('studyStat').textContent=`Total Study: ${totalStudy} min`;
+// FUTURE
+function predictFuture() {
+    let data = JSON.parse(localStorage.getItem("studyData")) || {};
+    let total = 0, days = 0;
 
-function addStudyFromInput(){
-    let input = parseInt(document.getElementById('studyInput').value);
-    if(!input || input < 0) return alert("Enter a valid positive number.");
+    for (let d in data) {
+        total += data[d];
+        days++;
+    }
 
-    let dayKey = today.toISOString().split('T')[0];
-    storedData[dayKey] = (storedData[dayKey] || 0) + input;
-    localStorage.setItem('studyData', JSON.stringify(storedData));
+    let avg = days ? total/days : 0;
 
-    totalStudy += input;
-    document.getElementById('studyStat').textContent=`Total Study: ${totalStudy} min`;
+    document.getElementById("futureText").textContent =
+        "You could study " + Math.round(avg*30) + " mins next month 🚀";
+}
 
-    renderHeatmap();
+// FEEDBACK
+function generateFeedback() {
+    let xp = localStorage.getItem("xp") || 0;
+
+    let text = xp < 50 ? "Start strong!" :
+               xp < 150 ? "Good progress!" :
+               "You're elite 🔥";
+
+    document.getElementById("aiFeedback").textContent = text;
 }
 </script>
 
