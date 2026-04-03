@@ -188,7 +188,7 @@ animateParticles();
 // AI (REPLIT)
 async function generateQuestion() {
     try {
-        const res = await fetch("https://YOUR-REPL-URL/generate", {method:"POST"});
+        const res = await fetch("https://revstudy-ai--emangchat.replit.app", {method:"POST"});
         const data = await res.json();
         document.getElementById("questionBox").textContent = data.question;
     } catch {
