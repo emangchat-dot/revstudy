@@ -114,6 +114,25 @@
     </iframe>
 </div>
 
+<!-- 🌐 PORTAL -->
+<div class="box">
+    <h3>🌐 Study Portal</h3>
+
+    <input type="text" id="siteInput" placeholder="Enter website (example.com)">
+    <button onclick="loadSite()">Go</button>
+
+    <br><br>
+
+    <button onclick="loadYouTube()">📺 YouTube</button>
+    <button onclick="loadRadio()">📻 Radio</button>
+
+    <iframe id="portalFrame"
+        width="100%"
+        height="250"
+        style="border-radius:10px; border:none;">
+    </iframe>
+</div>
+
 <!-- HEATMAP -->
 <div class="box">
     <h3>📊 Study Heatmap</h3>
@@ -176,8 +195,12 @@ function animateParticles() {
 animateParticles();
 
 // CLOCK
-function updateClock() { const now = new Date(); document.getElementById("clock").textContent = now.toLocaleTimeString(); }
-setInterval(updateClock, 1000); updateClock();
+function updateClock() {
+    const now = new Date();
+    document.getElementById("clock").textContent = now.toLocaleTimeString();
+}
+setInterval(updateClock, 1000);
+updateClock();
 
 // TIMER
 let time = 1500, interval;
@@ -190,7 +213,11 @@ function startTimer() {
         document.getElementById("timer").textContent = `${m}:${s.toString().padStart(2,'0')}`;
     },1000);
 }
-function resetTimer() { clearInterval(interval); time=1500; document.getElementById("timer").textContent="25:00"; }
+function resetTimer() {
+    clearInterval(interval);
+    time=1500;
+    document.getElementById("timer").textContent="25:00";
+}
 
 // LOFI
 function setLofi(type) {
@@ -204,10 +231,32 @@ function setLofi(type) {
 }
 setLofi(1);
 
+// 🌐 PORTAL FUNCTIONS
+function loadSite() {
+    let url = document.getElementById("siteInput").value.trim();
+    if (!url.startsWith("http")) {
+        url = "https://" + url;
+    }
+    document.getElementById("portalFrame").src = url;
+}
+
+function loadYouTube() {
+    document.getElementById("portalFrame").src =
+        "https://www.youtube.com/embed/jfKfPfyJRdk";
+}
+
+function loadRadio() {
+    document.getElementById("portalFrame").src =
+        "https://player.radio-browser.info/";
+}
+
 // AI QUESTION
 async function generateQuestion() {
     const topic = document.getElementById("topicInput").value.trim();
-    if(!topic){ document.getElementById("questionBox").textContent="Enter a topic."; return; }
+    if(!topic){
+        document.getElementById("questionBox").textContent="Enter a topic.";
+        return;
+    }
     document.getElementById("questionBox").textContent="Generating...";
     try{
         const res = await fetch("https://revstudy-ai--emangchat.replit.app", {
@@ -216,24 +265,34 @@ async function generateQuestion() {
             body:JSON.stringify({topic:topic})
         });
         const data = await res.json();
-        document.getElementById("questionBox").textContent = (data && data.question) ? data.question : "No question returned.";
-    } catch { document.getElementById("questionBox").textContent="Error generating question."; }
+        document.getElementById("questionBox").textContent =
+            (data && data.question) ? data.question : "No question returned.";
+    } catch {
+        document.getElementById("questionBox").textContent="Error generating question.";
+    }
 }
 
 // HEATMAP
 function loadHeatmap(){
     let data=JSON.parse(localStorage.getItem("studyData"))||{};
-    let heat=document.getElementById("heatmap"); heat.innerHTML="";
-    for(let d in data){ let div=document.createElement("div"); div.textContent=d+": "+data[d]+" min"; heat.appendChild(div); }
+    let heat=document.getElementById("heatmap");
+    heat.innerHTML="";
+    for(let d in data){
+        let div=document.createElement("div");
+        div.textContent=d+": "+data[d]+" min";
+        heat.appendChild(div);
+    }
 }
 loadHeatmap();
 
 // FUTURE
 function predictFuture(){
     let data=JSON.parse(localStorage.getItem("studyData"))||{};
-    let total=0,days=0; for(let d in data){ total+=data[d]; days++; }
+    let total=0,days=0;
+    for(let d in data){ total+=data[d]; days++; }
     let avg=days?total/days:0;
-    document.getElementById("futureText").textContent="You could study "+Math.round(avg*30)+" mins next month 🚀";
+    document.getElementById("futureText").textContent =
+        "You could study "+Math.round(avg*30)+" mins next month 🚀";
 }
 
 // FEEDBACK
@@ -246,3 +305,4 @@ function generateFeedback(){
 
 </body>
 </html>
+    
