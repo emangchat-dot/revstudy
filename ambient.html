@@ -12,7 +12,6 @@
             overflow-x: hidden;
         }
 
-        /* BACKGROUND LAYER */
         #bg {
             position: fixed;
             width: 100%;
@@ -23,7 +22,6 @@
             transition: background-image 1s ease-in-out;
         }
 
-        /* GRADIENT OVERLAY */
         #gradient {
             position: fixed;
             width: 100%;
@@ -41,7 +39,6 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* PARTICLES */
         canvas {
             position: fixed;
             top: 0;
@@ -71,6 +68,15 @@
             background: #4CAF50;
             color: white;
         }
+
+        input[type="text"] {
+            padding: 8px;
+            border-radius: 8px;
+            border: none;
+            width: 80%;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
     </style>
 </head>
 
@@ -90,7 +96,8 @@
 <!-- AI QUESTION -->
 <div class="box">
     <h3>🧠 AI Question</h3>
-    <p id="questionBox">Click generate</p>
+    <input type="text" id="topicInput" placeholder="Enter a topic (e.g. photosynthesis)">
+    <p id="questionBox">Enter a topic and click generate</p>
     <button onclick="generateQuestion()">Generate</button>
 </div>
 
@@ -125,17 +132,15 @@
 </div>
 
 <script>
-// NAV
 function goHome() {
     window.location.href = "index.html";
 }
 
-// BACKGROUNDS
 const backgrounds = [
-"https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-"https://images.unsplash.com/photo-1499084732479-de2c02d45fc4",
-"https://images.unsplash.com/photo-1470770841072-f978cf4d019e",
-"https://images.unsplash.com/photo-1501785888041-af3ef285b470"
+    "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
+    "https://images.unsplash.com/photo-1499084732479-de2c02d45fc4",
+    "https://images.unsplash.com/photo-1470770841072-f978cf4d019e",
+    "https://images.unsplash.com/photo-1501785888041-af3ef285b470"
 ];
 
 let currentBg = 0;
@@ -152,14 +157,12 @@ function changeBackground() {
 setInterval(changeBackground, 20000);
 setBackground(currentBg);
 
-// PARTICLES
 const canvas = document.getElementById("particles");
 const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 let particles = [];
-
 for (let i = 0; i < 80; i++) {
     particles.push({
         x: Math.random()*canvas.width,
@@ -177,7 +180,6 @@ function animateParticles() {
         ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
         ctx.fillStyle="white";
         ctx.fill();
-
         p.x += p.dx;
         p.y += p.dy;
     });
@@ -185,24 +187,26 @@ function animateParticles() {
 }
 animateParticles();
 
-// AI (REPLIT)
 async function generateQuestion() {
+    const topic = document.getElementById("topicInput").value.trim();
+    if (!topic) {
+        document.getElementById("questionBox").textContent = "Please enter a topic first.";
+        return;
+    }
+
+    document.getElementById("questionBox").textContent = "Generating...";
+
     try {
         const res = await fetch("https://revstudy-ai--emangchat.replit.app", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({
-                topic: "student mental health issues",
-                type: "multiple-choice",
-                number: 1
-            })
+            body: JSON.stringify({ topic: topic })
         });
         const data = await res.json();
-        if(data && data.question) {
+        if (data && data.question) {
             document.getElementById("questionBox").textContent = data.question;
         } else {
-            document.getElementById("questionBox").textContent = "No question returned.";
-            console.log(data);
+            document.getElementById("questionBox").textContent = "No question returned. Try again.";
         }
     } catch (err) {
         console.error(err);
@@ -210,12 +214,10 @@ async function generateQuestion() {
     }
 }
 
-// HEATMAP
 function loadHeatmap() {
     let data = JSON.parse(localStorage.getItem("studyData")) || {};
     let heat = document.getElementById("heatmap");
     heat.innerHTML = "";
-
     for (let d in data) {
         let div = document.createElement("div");
         div.textContent = d + ": " + data[d] + " min";
@@ -224,30 +226,23 @@ function loadHeatmap() {
 }
 loadHeatmap();
 
-// FUTURE
 function predictFuture() {
     let data = JSON.parse(localStorage.getItem("studyData")) || {};
     let total = 0, days = 0;
-
     for (let d in data) {
         total += data[d];
         days++;
     }
-
     let avg = days ? total/days : 0;
-
     document.getElementById("futureText").textContent =
         "You could study " + Math.round(avg*30) + " mins next month 🚀";
 }
 
-// FEEDBACK
 function generateFeedback() {
     let xp = localStorage.getItem("xp") || 0;
-
     let text = xp < 50 ? "Start strong!" :
                xp < 150 ? "Good progress!" :
                "You're elite 🔥";
-
     document.getElementById("aiFeedback").textContent = text;
 }
 </script>
