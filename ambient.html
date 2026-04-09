@@ -137,16 +137,17 @@ border:none;
 <iframe id="portalFrame" width="100%" height="200"></iframe>
 </div>
 
-<!-- ✅ FINAL RADIO -->
+<!-- RADIO -->
 <div class="box">
 <h3>📻 Radio</h3>
 
 <button onclick="playStation('https://icecast.radiofrance.fr/fip-midfi.mp3')">Jazz</button>
 <button onclick="playStation('https://stream.radioparadise.com/mp3-128')">Pop</button>
 <button onclick="playStation('https://kexp-mp3-128.streamguys1.com/kexp128.mp3')">Indie</button>
-<button onclick="playStation('https://stream.classicalmusicradio.com/classical.mp3')">Classical</button>
+<button onclick="playClassical()">Classical</button>
 
 <audio id="radioPlayer" controls style="width:100%;margin-top:10px;"></audio>
+<iframe id="classicalPlayer" width="100%" height="0" style="margin-top:10px;display:none;"></iframe>
 <p id="radioStatus" style="font-size:12px;color:lightgray;"></p>
 </div>
 
@@ -253,11 +254,17 @@ function loadYouTube(){
 document.getElementById("portalFrame").src="https://www.youtube.com/embed/jfKfPfyJRdk";
 }
 
-// ✅ RADIO FUNCTION
+// RADIO
 function playStation(url){
 let audio=document.getElementById("radioPlayer");
+let iframe=document.getElementById("classicalPlayer");
 let status=document.getElementById("radioStatus");
 
+// hide classical iframe if switching
+iframe.style.display="none";
+iframe.src="";
+
+// reset audio
 audio.pause();
 audio.src="";
 audio.load();
@@ -266,9 +273,29 @@ audio.src=url;
 
 audio.play()
 .then(()=>{status.textContent="Playing...";})
-.catch(()=>{status.textContent="⚠️ Stream failed or blocked";});
+.catch(()=>{status.textContent="⚠️ Stream blocked or failed";});
 
 audio.onerror=()=>{status.textContent="❌ Could not load stream";};
+}
+
+// CLASSICAL YOUTUBE
+function playClassical(){
+let audio=document.getElementById("radioPlayer");
+let iframe=document.getElementById("classicalPlayer");
+let status=document.getElementById("radioStatus");
+
+// stop audio
+audio.pause();
+audio.src="";
+audio.load();
+
+// show YouTube classical
+iframe.style.display="block";
+iframe.height="152";
+iframe.src="https://www.youtube.com/embed/5qap5aO4i9A?autoplay=1";
+
+// status
+status.textContent="Playing Classical (YouTube)";
 }
 
 // AI QUESTION
