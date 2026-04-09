@@ -1,84 +1,95 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>RevStudy - Ambient Mode</title>
+    <title>RevStudy - Ambient Mode</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            color: white;
+            text-align: center;
+            overflow-x: hidden;
+            background: black;
+        }
 
-<style>
-body {
-margin:0;
-font-family:'Segoe UI',sans-serif;
-color:white;
-text-align:center;
-overflow-x:hidden;
-}
+        #bg {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            z-index: -3;
+            transition: background-image 1s ease-in-out;
+        }
 
-#bg {
-position:fixed;
-width:100%;
-height:100%;
-background-size:cover;
-z-index:-3;
-}
+        #gradient {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(-45deg, #667eea, #764ba2, #6dd5ed, #2193b0);
+            background-size: 400% 400%;
+            animation: gradientMove 30s ease infinite;
+            opacity: 0.6;
+            z-index: -2;
+        }
 
-#gradient {
-position:fixed;
-width:100%;
-height:100%;
-background:linear-gradient(-45deg,#667eea,#764ba2,#6dd5ed,#2193b0);
-background-size:400% 400%;
-animation:gradientMove 15s ease infinite;
-opacity:0.7;
-z-index:-2;
-}
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
 
-@keyframes gradientMove {
-0%{background-position:0% 50%;}
-50%{background-position:100% 50%;}
-100%{background-position:0% 50%;}
-}
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
 
-canvas {
-position:fixed;
-top:0;
-left:0;
-z-index:-1;
-}
+        .overlay { padding: 20px; }
 
-.overlay {padding:20px;}
+        .box {
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(12px);
+            padding: 20px;
+            margin: 15px auto;
+            width: 320px;
+            border-radius: 15px;
+        }
 
-.box {
-background:rgba(0,0,0,0.4);
-backdrop-filter:blur(12px);
-padding:20px;
-margin:15px auto;
-width:320px;
-border-radius:15px;
-}
+        button {
+            padding: 10px;
+            margin: 5px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            background: #4CAF50;
+            color: white;
+        }
 
-button {
-padding:10px;
-margin:5px;
-border-radius:8px;
-border:none;
-cursor:pointer;
-background:#4CAF50;
-color:white;
-}
+        input[type="text"] {
+            padding: 8px;
+            border-radius: 8px;
+            border: none;
+            width: 80%;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
 
-input {
-padding:8px;
-border-radius:8px;
-border:none;
-width:80%;
-}
+        iframe {
+            border-radius: 12px;
+            width: 100%;
+            height: 180px;
+            border: none;
+        }
 
-iframe {
-border-radius:10px;
-border:none;
-}
-</style>
+        #funFactBox {
+            font-style: italic;
+            margin-top: 10px;
+            color: #ffeb3b;
+        }
+    </style>
 </head>
-
 <body>
 
 <div id="bg"></div>
@@ -86,234 +97,201 @@ border:none;
 <canvas id="particles"></canvas>
 
 <div class="overlay">
+    <h1>🌌 RevStudy Ambient Mode</h1>
+    <button onclick="goHome()">🏠 Home</button>
+    <button onclick="changeBackground()">🎨 Change Background</button>
 
-<h1>🌌 RevStudy Ambient Mode</h1>
+    <!-- CLOCK -->
+    <div class="box">
+        <h3>⏰ Time</h3>
+        <h2 id="clock"></h2>
+    </div>
 
-<button onclick="goHome()">🏠 Home</button>
-<button onclick="changeBackground()">🎨 Change Background</button>
+    <!-- POMODORO -->
+    <div class="box">
+        <h3>🍅 Focus Timer</h3>
+        <h2 id="timer">25:00</h2>
+        <button onclick="startTimer()">Start</button>
+        <button onclick="resetTimer()">Reset</button>
+    </div>
 
-<!-- CLOCK -->
-<div class="box">
-<h3>⏰ Time</h3>
-<h2 id="clock"></h2>
-</div>
+    <!-- AI QUESTION -->
+    <div class="box">
+        <h3>🧠 AI Question</h3>
+        <input type="text" id="topicInput" placeholder="Enter a topic">
+        <p id="questionBox">Enter a topic and click generate</p>
+        <button onclick="generateQuestion()">Generate</button>
+    </div>
 
-<!-- TIMER -->
-<div class="box">
-<h3>🍅 Focus Timer</h3>
-<h2 id="timer">25:00</h2>
-<button onclick="startTimer()">Start</button>
-<button onclick="resetTimer()">Reset</button>
-</div>
+    <!-- LOFI PLAYER -->
+    <div class="box">
+        <h3>🎧 Lofi Stations</h3>
+        <button onclick="setLofi(1)">Chill</button>
+        <button onclick="setLofi(2)">Sleep</button>
+        <button onclick="setLofi(3)">Focus</button>
+        <iframe id="spotifyPlayer" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+    </div>
 
-<!-- AI QUESTION -->
-<div class="box">
-<h3>🧠 AI Question</h3>
-<input id="topicInput" placeholder="Enter topic">
-<p id="questionBox">Enter a topic</p>
-<button onclick="generateQuestion()">Generate</button>
-</div>
+    <!-- FUN FACT -->
+    <div class="box">
+        <h3>💡 Fun Fact</h3>
+        <p id="funFactBox">Click the button for a new fun fact!</p>
+        <button onclick="showFunFact()">New Fun Fact</button>
+    </div>
 
-<!-- LOFI -->
-<div class="box">
-<h3>🎧 Lofi</h3>
-<button onclick="setLofi(1)">Chill</button>
-<button onclick="setLofi(2)">Sleep</button>
-<button onclick="setLofi(3)">Focus</button>
-<iframe id="spotifyPlayer" width="100%" height="152"></iframe>
-</div>
+    <!-- BROWSER PORTAL -->
+    <div class="box">
+        <h3>🌐 Study Portal</h3>
+        <input type="text" id="portalUrl" placeholder="Enter URL (e.g., https://example.com)">
+        <button onclick="loadPortal()">Go</button>
+        <iframe id="portalFrame"></iframe>
+    </div>
 
-<!-- PORTAL -->
-<div class="box">
-<h3>🌐 Study Portal</h3>
+    <!-- HEATMAP -->
+    <div class="box">
+        <h3>📊 Study Heatmap</h3>
+        <div id="heatmap"></div>
+    </div>
 
-<input id="siteInput" placeholder="Enter URL">
-<button onclick="loadSite()">Go</button>
+    <!-- FUTURE -->
+    <div class="box">
+        <h3>📈 Future You</h3>
+        <p id="futureText"></p>
+        <button onclick="predictFuture()">Predict</button>
+    </div>
 
-<br><br>
-
-<button onclick="loadYouTube()">📺 YouTube</button>
-
-<iframe id="portalFrame" width="100%" height="200"></iframe>
-</div>
-
-<!-- RADIO -->
-<div class="box">
-<h3>📻 Radio</h3>
-
-<button onclick="playStation('https://icecast.radiofrance.fr/fip-midfi.mp3')">Jazz</button>
-<button onclick="playStation('https://stream.radioparadise.com/mp3-128')">Pop</button>
-<button onclick="playStation('https://kexp-mp3-128.streamguys1.com/kexp128.mp3')">Indie</button>
-<button onclick="playStation('https://streams.kqed.org/kqedclassical128.mp3')">Classical</button>
-
-<audio id="radioPlayer" controls style="width:100%;margin-top:10px;"></audio>
-<p id="radioStatus" style="font-size:12px;color:lightgray;"></p>
-</div>
-
-<!-- HEATMAP -->
-<div class="box">
-<h3>📊 Study Heatmap</h3>
-<div id="heatmap"></div>
-</div>
-
-<!-- FUTURE -->
-<div class="box">
-<h3>📈 Future You</h3>
-<p id="futureText"></p>
-<button onclick="predictFuture()">Predict</button>
-</div>
-
-<!-- FEEDBACK -->
-<div class="box">
-<h3>🤖 Feedback</h3>
-<p id="aiFeedback"></p>
-<button onclick="generateFeedback()">Get Feedback</button>
-</div>
+    <!-- FEEDBACK -->
+    <div class="box">
+        <h3>🤖 Feedback</h3>
+        <p id="aiFeedback"></p>
+        <button onclick="generateFeedback()">Get Feedback</button>
+    </div>
 
 </div>
 
 <script>
-
 // NAV
-function goHome(){window.location.href="index.html";}
+function goHome() { window.location.href = "index.html"; }
 
-// BACKGROUND
-const backgrounds=[
-"https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-"https://images.unsplash.com/photo-1499084732479-de2c02d45fc4",
-"https://images.unsplash.com/photo-1470770841072-f978cf4d019e"
+// BACKGROUNDS
+const backgrounds = [
+    "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
+    "https://images.unsplash.com/photo-1499084732479-de2c02d45fc4",
+    "https://images.unsplash.com/photo-1470770841072-f978cf4d019e",
+    "https://images.unsplash.com/photo-1501785888041-af3ef285b470"
 ];
-let bg=0;
-function changeBackground(){
-bg=(bg+1)%backgrounds.length;
-document.getElementById("bg").style.backgroundImage=`url('${backgrounds[bg]}')`;
-}
-changeBackground();
+let currentBg = 0;
+function setBackground(i){document.getElementById("bg").style.backgroundImage=`url('${backgrounds[i]}')`;}
+function changeBackground(){currentBg=(currentBg+1)%backgrounds.length; setBackground(currentBg);}
 setInterval(changeBackground,20000);
+setBackground(currentBg);
 
 // PARTICLES
-const canvas=document.getElementById("particles");
-const ctx=canvas.getContext("2d");
+const canvas = document.getElementById("particles");
+const ctx = canvas.getContext("2d");
 canvas.width=window.innerWidth;
 canvas.height=window.innerHeight;
-
 let particles=[];
-for(let i=0;i<80;i++){
-particles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*2,dx:Math.random()-0.5,dy:Math.random()-0.5});
+for(let i=0;i<40;i++){
+    particles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*2,dx:Math.random()-0.5,dy:Math.random()-0.5});
 }
-
-function animate(){
-ctx.clearRect(0,0,canvas.width,canvas.height);
-particles.forEach(p=>{
-ctx.beginPath();
-ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-ctx.fillStyle="white";
-ctx.fill();
-p.x+=p.dx;
-p.y+=p.dy;
-});
-requestAnimationFrame(animate);
+function animateParticles(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(p=>{
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fillStyle="white";
+        ctx.fill();
+        p.x+=p.dx; p.y+=p.dy;
+    });
+    requestAnimationFrame(animateParticles);
 }
-animate();
+animateParticles();
 
 // CLOCK
-setInterval(()=>{document.getElementById("clock").textContent=new Date().toLocaleTimeString();},1000);
+function updateClock(){const now=new Date(); document.getElementById("clock").textContent=now.toLocaleTimeString();}
+setInterval(updateClock,1000); updateClock();
 
 // TIMER
 let time=1500,interval;
-function startTimer(){
-clearInterval(interval);
-interval=setInterval(()=>{
-if(time<=0)return clearInterval(interval);
-time--;
-let m=Math.floor(time/60),s=time%60;
-document.getElementById("timer").textContent=`${m}:${s.toString().padStart(2,'0')}`;
-},1000);
-}
-function resetTimer(){clearInterval(interval);time=1500;document.getElementById("timer").textContent="25:00";}
+function startTimer(){clearInterval(interval); interval=setInterval(()=>{
+    if(time<=0)return clearInterval(interval);
+    time--;
+    let m=Math.floor(time/60),s=time%60;
+    document.getElementById("timer").textContent=`${m}:${s.toString().padStart(2,'0')}`;
+},1000);}
+function resetTimer(){clearInterval(interval); time=1500; document.getElementById("timer").textContent="25:00";}
 
 // LOFI
-function setLofi(t){
-const list={
-1:"https://open.spotify.com/embed/playlist/37i9dQZF1DX8Uebhn9wzrS",
-2:"https://open.spotify.com/embed/playlist/37i9dQZF1DWZd79rJ6a7lp",
-3:"https://open.spotify.com/embed/playlist/37i9dQZF1DX3PFzdbtx1Us"
-};
-document.getElementById("spotifyPlayer").src=list[t];
+function setLofi(type){
+    const player=document.getElementById("spotifyPlayer");
+    const playlists={
+        1:"https://open.spotify.com/embed/playlist/37i9dQZF1DX8Uebhn9wzrS",
+        2:"https://open.spotify.com/embed/playlist/37i9dQZF1DWZd79rJ6a7lp",
+        3:"https://open.spotify.com/embed/playlist/37i9dQZF1DX3PFzdbtx1Us"
+    };
+    player.src=playlists[type];
 }
 setLofi(1);
 
-// PORTAL
-function loadSite(){
-let url=document.getElementById("siteInput").value;
-if(!url.startsWith("http"))url="https://"+url;
-document.getElementById("portalFrame").src=url;
-}
-function loadYouTube(){
-document.getElementById("portalFrame").src="https://www.youtube.com/embed/jfKfPfyJRdk";
-}
-
-// RADIO
-function playStation(url){
-let audio=document.getElementById("radioPlayer");
-let status=document.getElementById("radioStatus");
-
-audio.pause();
-audio.src="";
-audio.load();
-
-audio.src=url;
-
-audio.play()
-.then(()=>{status.textContent="Playing...";})
-.catch(()=>{status.textContent="⚠️ Stream blocked or failed";});
-
-audio.onerror=()=>{status.textContent="❌ Could not load stream";};
-}
-
 // AI QUESTION
 async function generateQuestion(){
-let topic=document.getElementById("topicInput").value;
-if(!topic)return;
-document.getElementById("questionBox").textContent="Generating...";
-try{
-let res=await fetch("https://revstudy-ai--emangchat.replit.app",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({topic})});
-let data=await res.json();
-document.getElementById("questionBox").textContent=data.question||"No question returned.";
-}catch{
-document.getElementById("questionBox").textContent="Error generating question.";
+    const topic=document.getElementById("topicInput").value.trim();
+    if(!topic){document.getElementById("questionBox").textContent="Enter a topic."; return;}
+    document.getElementById("questionBox").textContent="Generating...";
+    try{
+        const res=await fetch("https://revstudy-ai--emangchat.replit.app",{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({topic})
+        });
+        const data=await res.json();
+        document.getElementById("questionBox").textContent=(data&&data.question)?data.question:"No question returned.";
+    }catch{document.getElementById("questionBox").textContent="Error generating question.";}
 }
+
+// FUN FACTS
+const funFacts=[
+    "Honey never spoils.",
+    "Bananas are berries but strawberries aren't.",
+    "Octopuses have three hearts.",
+    "A group of flamingos is called a flamboyance.",
+    "Sharks existed before trees."
+];
+function showFunFact(){
+    const fact=funFacts[Math.floor(Math.random()*funFacts.length)];
+    document.getElementById("funFactBox").textContent=fact;
+}
+
+// PORTAL
+function loadPortal(){
+    const url=document.getElementById("portalUrl").value.trim();
+    if(!url)return alert("Enter a URL first!");
+    document.getElementById("portalFrame").src=url;
 }
 
 // HEATMAP
 function loadHeatmap(){
-let data=JSON.parse(localStorage.getItem("studyData"))||{};
-let heat=document.getElementById("heatmap");
-heat.innerHTML="";
-for(let d in data){
-let div=document.createElement("div");
-div.textContent=d+": "+data[d]+" min";
-heat.appendChild(div);
-}
+    let data=JSON.parse(localStorage.getItem("studyData"))||{};
+    let heat=document.getElementById("heatmap"); heat.innerHTML="";
+    for(let d in data){ let div=document.createElement("div"); div.textContent=d+": "+data[d]+" min"; heat.appendChild(div);}
 }
 loadHeatmap();
 
 // FUTURE
 function predictFuture(){
-let data=JSON.parse(localStorage.getItem("studyData"))||{};
-let total=0,days=0;
-for(let d in data){total+=data[d];days++;}
-let avg=days?total/days:0;
-document.getElementById("futureText").textContent="You could study "+Math.round(avg*30)+" mins next month 🚀";
+    let data=JSON.parse(localStorage.getItem("studyData"))||{};
+    let total=0,days=0; for(let d in data){total+=data[d]; days++;}
+    let avg=days?total/days:0;
+    document.getElementById("futureText").textContent="You could study "+Math.round(avg*30)+" mins next month 🚀";
 }
 
 // FEEDBACK
 function generateFeedback(){
-let xp=localStorage.getItem("xp")||0;
-let text=xp<50?"Start strong!":xp<150?"Good progress!":"You're elite 🔥";
-document.getElementById("aiFeedback").textContent=text;
+    let xp=localStorage.getItem("xp")||0;
+    let text=xp<50?"Start strong!":xp<150?"Good progress!":"You're elite 🔥";
+    document.getElementById("aiFeedback").textContent=text;
 }
-
 </script>
 
 </body>
