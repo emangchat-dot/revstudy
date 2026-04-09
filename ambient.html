@@ -100,7 +100,7 @@
     <h2 id="clock"></h2>
 </div>
 
-<!-- TIMER -->
+<!-- POMODORO -->
 <div class="box">
     <h3>🍅 Focus Timer</h3>
     <h2 id="timer">25:00</h2>
@@ -131,15 +131,19 @@
     <h3>🌐 Study Portal</h3>
     <input type="text" id="portalUrl" placeholder="Enter URL">
     <button onclick="loadPortal()">Go</button>
-    <iframe id="portalFrame" width="100%" height="250"></iframe>
-    <p id="iframeWarning" style="color:orange; display:none;">This site cannot be loaded in the mini-browser. Opening in a new tab...</p>
+    <iframe id="portalFrame" style="width:100%; height:500px; border:none;" scrolling="yes"></iframe>
+    <p id="iframeWarning" style="color:orange; display:none;">
+        This site cannot be loaded in the mini-browser. Opening in a new tab...
+    </p>
 
     <hr style="margin:10px 0; border-color: white; opacity:0.3;">
 
+    <!-- YouTube Player -->
     <h4>📺 YouTube Lofi</h4>
     <iframe id="ytPlayer" src="https://www.youtube.com/embed/5qap5aO4i9A?autoplay=0&loop=1&playlist=5qap5aO4i9A" 
         allow="autoplay; encrypted-media" width="100%" height="180"></iframe>
 
+    <!-- FM Radio -->
     <h4>📻 FM Radio</h4>
     <audio id="fmRadio" controls autoplay loop>
         <source src="https://icecast.radiofrance.fr/franceinter-midfi.mp3" type="audio/mpeg">
@@ -251,18 +255,35 @@ function loadPortal() {
     const url = urlInput.startsWith("http") ? urlInput : "https://" + urlInput;
     const iframe = document.getElementById("portalFrame");
     const warning = document.getElementById("iframeWarning");
+
+    // Reset iframe
     iframe.src = "";
     warning.style.display = "none";
+
+    // Try loading in iframe
     iframe.src = url;
+
+    // Detect if blocked after short delay
     setTimeout(() => {
-        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-        if (!iframeDoc || iframeDoc.body.innerHTML.length === 0) {
+        try {
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            if (!iframeDoc || iframeDoc.body.innerHTML.length === 0) {
+                throw new Error("Blocked");
+            }
+        } catch (e) {
             iframe.src = "";
             warning.style.display = "block";
             window.open(url, "_blank");
         }
     }, 1500);
 }
+
+// Resize iframe dynamically
+window.addEventListener('resize', () => {
+    const iframe = document.getElementById("portalFrame");
+    iframe.style.height = (window.innerHeight * 0.6) + "px";
+});
+window.dispatchEvent(new Event('resize'));
 
 // AI QUESTION
 async function generateQuestion() {
