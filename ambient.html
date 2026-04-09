@@ -126,21 +126,20 @@
         allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
 </div>
 
-<!-- PORTAL + MINI-BROWSER -->
+<!-- PORTAL + YOUTUBE + RADIO -->
 <div class="box">
     <h3>🌐 Study Portal</h3>
+
+    <!-- Browser/URL -->
     <input type="text" id="portalUrl" placeholder="Enter URL">
     <button onclick="loadPortal()">Go</button>
-    <iframe id="portalFrame" style="width:100%; height:500px; border:none;" scrolling="yes"></iframe>
-    <p id="iframeWarning" style="color:orange; display:none;">
-        ⚠️ This site may block in-browser viewing.
-    </p>
+    <iframe id="portalFrame" width="100%" height="300"></iframe>
 
     <hr style="margin:10px 0; border-color: white; opacity:0.3;">
 
     <!-- YouTube Player -->
     <h4>📺 YouTube Lofi</h4>
-    <iframe id="ytPlayer" src="https://www.youtube.com/embed/5qap5aO4i9A?autoplay=0&loop=1&playlist=5qap5aO4i9A" 
+    <iframe id="ytPlayer" src="https://www.youtube.com/embed/5qap5aO4i9A?autoplay=1&loop=1&playlist=5qap5aO4i9A&enablejsapi=1" 
         allow="autoplay; encrypted-media" width="100%" height="180"></iframe>
 
     <!-- FM Radio -->
@@ -250,33 +249,12 @@ setLofi(1);
 
 // PORTAL
 function loadPortal() {
-    const urlInput = document.getElementById("portalUrl").value.trim();
-    if(!urlInput) return;
-    const url = urlInput.startsWith("http") ? urlInput : "https://" + urlInput;
-    const iframe = document.getElementById("portalFrame");
-    const warning = document.getElementById("iframeWarning");
-
-    iframe.src = "";
-    warning.style.display = "none";
-    iframe.src = url;
-
-    setTimeout(() => {
-        try {
-            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-            if (!iframeDoc || iframeDoc.body.innerHTML.length === 0) {
-                warning.style.display = "block";
-            }
-        } catch (e) {
-            warning.style.display = "block";
-        }
-    }, 2000);
+    const url = document.getElementById("portalUrl").value.trim();
+    if(url){
+        let formatted = url.startsWith("http") ? url : "https://" + url;
+        document.getElementById("portalFrame").src = formatted;
+    }
 }
-
-window.addEventListener('resize', () => {
-    const iframe = document.getElementById("portalFrame");
-    iframe.style.height = (window.innerHeight * 0.6) + "px";
-});
-window.dispatchEvent(new Event('resize'));
 
 // AI QUESTION
 async function generateQuestion() {
