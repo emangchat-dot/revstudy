@@ -1,307 +1,235 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>RevStudy - Ambient Mode</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: 'Segoe UI', sans-serif;
-            color: white;
-            text-align: center;
-            overflow-x: hidden;
-        }
+<title>RevStudy - Ambient Mode</title>
 
-        #bg {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            background-size: cover;
-            background-position: center;
-            z-index: -3;
-            transition: background-image 1s ease-in-out;
-        }
+<style>
+body {
+    margin:0;
+    font-family:'Segoe UI',sans-serif;
+    color:white;
+    text-align:center;
+    overflow-x:hidden;
+}
 
-        #gradient {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(-45deg, #667eea, #764ba2, #6dd5ed, #2193b0);
-            background-size: 400% 400%;
-            animation: gradientMove 15s ease infinite;
-            opacity: 0.7;
-            z-index: -2;
-        }
+#bg, #gradient, canvas {
+    position:fixed;
+    width:100%;
+    height:100%;
+}
 
-        @keyframes gradientMove {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+#bg { z-index:-3; background-size:cover; }
+#gradient {
+    z-index:-2;
+    background:linear-gradient(-45deg,#667eea,#764ba2,#6dd5ed,#2193b0);
+    background-size:400% 400%;
+    animation:gradientMove 15s ease infinite;
+    opacity:0.7;
+}
 
-        canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: -1;
-        }
+@keyframes gradientMove {
+0%{background-position:0% 50%;}
+50%{background-position:100% 50%;}
+100%{background-position:0% 50%;}
+}
 
-        .overlay { padding: 20px; }
+canvas { z-index:-1; }
 
-        .box {
-            background: rgba(0,0,0,0.4);
-            backdrop-filter: blur(12px);
-            padding: 20px;
-            margin: 15px auto;
-            width: 340px;
-            border-radius: 15px;
-        }
+.box {
+    background:rgba(0,0,0,0.4);
+    padding:20px;
+    margin:15px auto;
+    width:340px;
+    border-radius:15px;
+}
 
-        button {
-            padding: 10px;
-            margin: 5px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            background: #4CAF50;
-            color: white;
-        }
+button { padding:10px; border:none; border-radius:8px; cursor:pointer; }
+input { padding:8px; border-radius:8px; border:none; width:80%; }
 
-        input[type="text"] {
-            padding: 8px;
-            border-radius: 8px;
-            border: none;
-            width: 80%;
-            margin-bottom: 10px;
-            font-size: 14px;
-        }
-
-        iframe {
-            border-radius: 12px;
-            margin-top: 10px;
-            width: 100%;
-        }
-
-        audio {
-            width: 100%;
-            margin-top: 10px;
-            border-radius: 8px;
-        }
-    </style>
+iframe, audio { width:100%; border-radius:10px; margin-top:10px; }
+</style>
 </head>
+
 <body>
 
 <div id="bg"></div>
 <div id="gradient"></div>
 <canvas id="particles"></canvas>
 
-<div class="overlay">
-
 <h1>🌌 RevStudy Ambient Mode</h1>
-
-<button onclick="goHome()">🏠 Home</button>
-<button onclick="changeBackground()">🎨 Change Background</button>
 
 <!-- CLOCK -->
 <div class="box">
-    <h3>⏰ Time</h3>
-    <h2 id="clock"></h2>
+<h3>⏰ Time</h3>
+<h2 id="clock"></h2>
 </div>
 
 <!-- TIMER -->
 <div class="box">
-    <h3>🍅 Focus Timer</h3>
-    <h2 id="timer">25:00</h2>
-    <button onclick="startTimer()">Start</button>
-    <button onclick="resetTimer()">Reset</button>
+<h3>🍅 Focus Timer</h3>
+<h2 id="timer">25:00</h2>
+<button onclick="startTimer()">Start</button>
+<button onclick="resetTimer()">Reset</button>
 </div>
 
 <!-- AI QUESTION -->
 <div class="box">
-    <h3>🧠 AI Question</h3>
-    <input type="text" id="topicInput" placeholder="Enter a topic">
-    <p id="questionBox">Enter a topic and click generate</p>
-    <button onclick="generateQuestion()">Generate</button>
+<h3>🧠 AI Question</h3>
+<input id="topicInput" placeholder="Enter topic">
+<p id="questionBox">Enter topic</p>
+<button onclick="generateQuestion()">Generate</button>
 </div>
 
 <!-- SPOTIFY -->
 <div class="box">
-    <h3>🎧 Lofi Stations</h3>
-    <button onclick="setLofi(1)">Chill</button>
-    <button onclick="setLofi(2)">Sleep</button>
-    <button onclick="setLofi(3)">Focus</button>
-    <iframe id="spotifyPlayer" height="152"
-        allow="autoplay; encrypted-media"></iframe>
+<h3>🎧 Lofi</h3>
+<button onclick="setLofi(1)">Chill</button>
+<button onclick="setLofi(2)">Sleep</button>
+<button onclick="setLofi(3)">Focus</button>
+<iframe id="spotifyPlayer" height="152"></iframe>
 </div>
 
-<!-- PORTAL + MEDIA -->
+<!-- PORTAL -->
 <div class="box">
-    <h3>🌐 Study Portal</h3>
-
-    <input type="text" id="portalUrl" placeholder="Enter URL">
-    <button onclick="loadPortal()">Go</button>
-    <iframe id="portalFrame" height="200"></iframe>
-
-    <hr>
-
-    <h4>📺 YouTube Lofi</h4>
-    <iframe 
-        id="ytPlayer"
-        height="180"
-        src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&mute=1&loop=1&playlist=jfKfPfyJRdk&controls=0"
-        allow="autoplay">
-    </iframe>
-
-    <h4>📻 FM Radio</h4>
-    <button onclick="playStation('https://icecast.radiofrance.fr/fip-midfi.mp3')">Jazz</button>
-    <button onclick="playStation('https://stream.live.vc.bbcmedia.co.uk/bbc_radio_one')">Pop</button>
-    <button onclick="playStation('https://playerservices.streamtheworld.com/api/livestream-redirect/KEXP_MP3.mp3')">Indie</button>
-    <button onclick="playStation('https://icecast.omroep.nl/radio4-bb-mp3')">Classical</button>
-
-    <audio id="fmRadio" controls autoplay>
-        <source src="https://icecast.radiofrance.fr/fip-midfi.mp3">
-    </audio>
+<h3>🌐 Portal</h3>
+<input id="portalUrl" placeholder="Enter URL">
+<button onclick="loadPortal()">Go</button>
 </div>
 
+<!-- YOUTUBE -->
+<div class="box">
+<h3>📺 YouTube</h3>
+<iframe src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&mute=1&loop=1&playlist=jfKfPfyJRdk&controls=0"></iframe>
+</div>
+
+<!-- RADIO -->
+<div class="box">
+<h3>📻 Radio</h3>
+<button onclick="playStation('https://icecast.radiofrance.fr/fip-midfi.mp3')">Jazz</button>
+<button onclick="playStation('https://stream.live.vc.bbcmedia.co.uk/bbc_radio_one')">Pop</button>
+<button onclick="playStation('https://playerservices.streamtheworld.com/api/livestream-redirect/KEXP_MP3.mp3')">Indie</button>
+<button onclick="playStation('https://icecast.omroep.nl/radio4-bb-mp3')">Classical</button>
+<audio id="fmRadio" controls autoplay></audio>
+</div>
+
+<!-- HEATMAP -->
+<div class="box">
+<h3>📊 Heatmap</h3>
+<div id="heatmap"></div>
+</div>
+
+<!-- FUTURE -->
+<div class="box">
+<h3>📈 Future You</h3>
+<p id="futureText"></p>
+<button onclick="predictFuture()">Predict</button>
+</div>
+
+<!-- FEEDBACK -->
+<div class="box">
+<h3>🤖 Feedback</h3>
+<p id="aiFeedback"></p>
+<button onclick="generateFeedback()">Generate</button>
+</div>
+
+<!-- FUN FACT -->
+<div class="box">
+<h3>✨ Fun Fact</h3>
+<p id="funFactBox"></p>
+<button onclick="showFunFact()">Show</button>
 </div>
 
 <script>
-// NAV
-function goHome() { window.location.href = "index.html"; }
-
-// BACKGROUND
-const backgrounds = [
-    "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-    "https://images.unsplash.com/photo-1499084732479-de2c02d45fc4",
-    "https://images.unsplash.com/photo-1470770841072-f978cf4d019e",
-    "https://images.unsplash.com/photo-1501785888041-af3ef285b470"
-];
-let currentBg = 0;
-function setBackground(i) {
-    document.getElementById("bg").style.backgroundImage = `url('${backgrounds[i]}')`;
-}
-function changeBackground() {
-    currentBg = (currentBg + 1) % backgrounds.length;
-    setBackground(currentBg);
-}
-setInterval(changeBackground, 20000);
-setBackground(currentBg);
-
-// PARTICLES
-const canvas = document.getElementById("particles");
-const ctx = canvas.getContext("2d");
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-let particles = [];
-for (let i = 0; i < 80; i++) {
-    particles.push({
-        x: Math.random()*canvas.width,
-        y: Math.random()*canvas.height,
-        r: Math.random()*2,
-        dx: Math.random()-0.5,
-        dy: Math.random()-0.5
-    });
-}
-
-function animateParticles() {
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    particles.forEach(p => {
-        ctx.beginPath();
-        ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-        ctx.fillStyle="white";
-        ctx.fill();
-        p.x += p.dx;
-        p.y += p.dy;
-    });
-    requestAnimationFrame(animateParticles);
-}
-animateParticles();
-
 // CLOCK
-function updateClock() {
-    document.getElementById("clock").textContent = new Date().toLocaleTimeString();
-}
-setInterval(updateClock, 1000);
-updateClock();
+setInterval(()=>{document.getElementById("clock").textContent=new Date().toLocaleTimeString()},1000);
 
 // TIMER
-let time = 1500, interval;
-function startTimer() {
-    clearInterval(interval);
-    interval = setInterval(() => {
-        if (time <= 0) return clearInterval(interval);
-        time--;
-        let m = Math.floor(time/60);
-        let s = time % 60;
-        document.getElementById("timer").textContent =
-            `${m}:${s.toString().padStart(2,'0')}`;
-    }, 1000);
-}
-function resetTimer() {
-    clearInterval(interval);
-    time = 1500;
-    document.getElementById("timer").textContent = "25:00";
-}
+let t=1500,i;
+function startTimer(){clearInterval(i);i=setInterval(()=>{if(t<=0)return; t--;let m=Math.floor(t/60),s=t%60;document.getElementById("timer").textContent=`${m}:${s.toString().padStart(2,'0')}`},1000);}
+function resetTimer(){clearInterval(i);t=1500;document.getElementById("timer").textContent="25:00";}
 
 // SPOTIFY
-function setLofi(type) {
-    const playlists = {
-        1: "https://open.spotify.com/embed/playlist/37i9dQZF1DX8Uebhn9wzrS",
-        2: "https://open.spotify.com/embed/playlist/37i9dQZF1DWZd79rJ6a7lp",
-        3: "https://open.spotify.com/embed/playlist/37i9dQZF1DX3PFzdbtx1Us"
-    };
-    document.getElementById("spotifyPlayer").src = playlists[type];
+function setLofi(x){
+let p=[
+"https://open.spotify.com/embed/playlist/37i9dQZF1DX8Uebhn9wzrS",
+"https://open.spotify.com/embed/playlist/37i9dQZF1DWZd79rJ6a7lp",
+"https://open.spotify.com/embed/playlist/37i9dQZF1DX3PFzdbtx1Us"];
+document.getElementById("spotifyPlayer").src=p[x-1];
 }
 setLofi(1);
 
 // PORTAL FIX
-function loadPortal() {
-    let url = document.getElementById("portalUrl").value.trim();
-    if (!url) return;
-
-    if (!url.startsWith("http")) {
-        url = "https://" + url;
-    }
-
-    const iframe = document.getElementById("portalFrame");
-    iframe.src = url;
-
-    setTimeout(() => {
-        try {
-            const doc = iframe.contentDocument || iframe.contentWindow.document;
-            if (!doc || doc.body.innerHTML.length === 0) {
-                window.open(url, "_blank");
-            }
-        } catch {
-            window.open(url, "_blank");
-        }
-    }, 1500);
+function loadPortal(){
+let url=document.getElementById("portalUrl").value.trim();
+if(!url)return;
+if(!url.startsWith("http")) url="https://"+url;
+window.open(url,"_blank");
 }
 
 // RADIO
-function playStation(url) {
-    const radio = document.getElementById("fmRadio");
-    radio.src = url;
-    radio.play();
+function playStation(u){let r=document.getElementById("fmRadio");r.src=u;r.play();}
+
+// HEATMAP
+function loadHeatmap(){
+let d=JSON.parse(localStorage.getItem("studyData"))||{};
+let h=document.getElementById("heatmap");h.innerHTML="";
+for(let x in d){let div=document.createElement("div");div.textContent=x+": "+d[x]+" min";h.appendChild(div);}
+}
+loadHeatmap();
+
+// FUTURE
+function predictFuture(){
+let d=JSON.parse(localStorage.getItem("studyData"))||{};
+let t=0,c=0;for(let x in d){t+=d[x];c++;}
+let avg=c?t/c:0;
+document.getElementById("futureText").textContent="Next month: "+Math.round(avg*30)+" mins";
 }
 
-// AI QUESTION (unchanged)
-async function generateQuestion() {
-    const topic = document.getElementById("topicInput").value.trim();
-    if (!topic) return;
-    document.getElementById("questionBox").textContent = "Generating...";
-    try {
-        const res = await fetch("https://revstudy-ai--emangchat.replit.app", {
-            method:"POST",
-            headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({topic})
-        });
-        const data = await res.json();
-        document.getElementById("questionBox").textContent =
-            data.question || "No question.";
-    } catch {
-        document.getElementById("questionBox").textContent = "Error.";
-    }
+// FEEDBACK
+function generateFeedback(){
+let xp=localStorage.getItem("xp")||0;
+document.getElementById("aiFeedback").textContent=xp<50?"Start!":xp<150?"Good!":"Elite!";
+}
+
+// FUN FACT
+const facts=[
+"Honey never spoils",
+"Octopus has 3 hearts",
+"Bananas are berries",
+"Sharks older than trees",
+"Brain makes electricity"
+];
+function showFunFact(){
+document.getElementById("funFactBox").textContent=facts[Math.floor(Math.random()*facts.length)];
+}
+
+// BACKGROUND ROTATION
+const bg=[
+"https://images.unsplash.com/photo-1506744038136-46273834b3fb",
+"https://images.unsplash.com/photo-1499084732479-de2c02d45fc4"
+];
+let b=0;
+setInterval(()=>{b=(b+1)%bg.length;document.getElementById("bg").style.backgroundImage=`url('${bg[b]}')`},20000);
+document.getElementById("bg").style.backgroundImage=`url('${bg[0]}')`;
+
+// PARTICLES
+const c=document.getElementById("particles"),ctx=c.getContext("2d");
+c.width=innerWidth;c.height=innerHeight;
+let p=[];
+for(let i=0;i<60;i++)p.push({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*2});
+function draw(){ctx.clearRect(0,0,c.width,c.height);p.forEach(x=>{ctx.beginPath();ctx.arc(x.x,x.y,x.r,0,6.28);ctx.fillStyle="white";ctx.fill();x.y+=0.3;if(x.y>c.height)x.y=0});requestAnimationFrame(draw);}
+draw();
+
+// AI QUESTION
+async function generateQuestion(){
+let t=document.getElementById("topicInput").value;
+if(!t)return;
+document.getElementById("questionBox").textContent="Loading...";
+try{
+let r=await fetch("https://revstudy-ai--emangchat.replit.app",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({topic:t})});
+let d=await r.json();
+document.getElementById("questionBox").textContent=d.question||"None";
+}catch{document.getElementById("questionBox").textContent="Error";}
 }
 </script>
 
