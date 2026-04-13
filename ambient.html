@@ -55,6 +55,7 @@ iframe, audio { width:100%; border-radius:10px; margin-top:10px; }
 <div id="bg"></div>
 <div id="gradient"></div>
 <canvas id="particles"></canvas>
+<canvas id="heatCanvas"></canvas>
 
 <h1>🌌 RevStudy Ambient Mode</h1>
 
@@ -140,13 +141,28 @@ iframe, audio { width:100%; border-radius:10px; margin-top:10px; }
 </div>
 
 <script>
+
 // CLOCK
 setInterval(()=>{document.getElementById("clock").textContent=new Date().toLocaleTimeString()},1000);
 
-// TIMER
-let t=1500,i;
-function startTimer(){clearInterval(i);i=setInterval(()=>{if(t<=0)return; t--;let m=Math.floor(t/60),s=t%60;document.getElementById("timer").textContent=`${m}:${s.toString().padStart(2,'0')}`},1000);}
-function resetTimer(){clearInterval(i);t=1500;document.getElementById("timer").textContent="25:00";}
+// TIMER (FIXED)
+let t=1500,i=null;
+
+function startTimer(){
+clearInterval(i);
+i=setInterval(()=>{
+if(t<=0){clearInterval(i);return;}
+t--;
+let m=Math.floor(t/60),s=t%60;
+document.getElementById("timer").textContent=`${m}:${s.toString().padStart(2,'0')}`;
+},1000);
+}
+
+function resetTimer(){
+clearInterval(i);
+t=1500;
+document.getElementById("timer").textContent="25:00";
+}
 
 // SPOTIFY
 function setLofi(x){
@@ -158,24 +174,44 @@ document.getElementById("spotifyPlayer").src=p[x-1];
 }
 setLofi(1);
 
-// PORTAL FIX
+// PORTAL (FIXED)
 function loadPortal(){
 let url=document.getElementById("portalUrl").value.trim();
 if(!url)return;
 if(!url.startsWith("http")) url="https://"+url;
-window.open(url,"_blank");
+
+let existing=document.getElementById("portalFrame");
+if(!existing){
+  let frame=document.createElement("iframe");
+  frame.id="portalFrame";
+  frame.style.width="100%";
+  frame.style.height="400px";
+  frame.style.marginTop="10px";
+  document.querySelector(".box:nth-of-type(5)").appendChild(frame);
+  existing=frame;
+}
+existing.src=url;
 }
 
 // RADIO
-function playStation(u){let r=document.getElementById("fmRadio");r.src=u;r.play();}
-
-// HEATMAP
-function loadHeatmap(){
-let d=JSON.parse(localStorage.getItem("studyData"))||{};
-let h=document.getElementById("heatmap");h.innerHTML="";
-for(let x in d){let div=document.createElement("div");div.textContent=x+": "+d[x]+" min";h.appendChild(div);}
+function playStation(u){
+let r=document.getElementById("fmRadio");
+r.src=u;
+r.play();
 }
-loadHeatmap();
+
+// HEATMAP (VISUAL FIXED)
+const heatCanvas=document.getElementById("heatCanvas");
+const hctx=heatCanvas.getContext("2d");
+heatCanvas.width=innerWidth;
+heatCanvas.height=innerHeight;
+
+document.addEventListener("click",e=>{
+hctx.beginPath();
+hctx.arc(e.clientX,e.clientY,20,0,Math.PI*2);
+hctx.fillStyle="rgba(255,0,0,0.25)";
+hctx.fill();
+});
 
 // FUTURE
 function predictFuture(){
@@ -199,26 +235,59 @@ const facts=[
 "Sharks older than trees",
 "Brain makes electricity"
 ];
+
 function showFunFact(){
-document.getElementById("funFactBox").textContent=facts[Math.floor(Math.random()*facts.length)];
+document.getElementById("funFactBox").textContent=
+facts[Math.floor(Math.random()*facts.length)];
 }
 
-// BACKGROUND ROTATION
+showFunFact();
+
+// BACKGROUND
 const bg=[
 "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
 "https://images.unsplash.com/photo-1499084732479-de2c02d45fc4"
 ];
+
 let b=0;
-setInterval(()=>{b=(b+1)%bg.length;document.getElementById("bg").style.backgroundImage=`url('${bg[b]}')`},20000);
+setInterval(()=>{
+b=(b+1)%bg.length;
+document.getElementById("bg").style.backgroundImage=`url('${bg[b]}')`;
+},20000);
+
 document.getElementById("bg").style.backgroundImage=`url('${bg[0]}')`;
 
 // PARTICLES
 const c=document.getElementById("particles"),ctx=c.getContext("2d");
 c.width=innerWidth;c.height=innerHeight;
+
 let p=[];
-for(let i=0;i<60;i++)p.push({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*2});
-function draw(){ctx.clearRect(0,0,c.width,c.height);p.forEach(x=>{ctx.beginPath();ctx.arc(x.x,x.y,x.r,0,6.28);ctx.fillStyle="white";ctx.fill();x.y+=0.3;if(x.y>c.height)x.y=0});requestAnimationFrame(draw);}
+for(let i=0;i<60;i++)p.push({
+x:Math.random()*c.width,
+y:Math.random()*c.height,
+r:Math.random()*2
+});
+
+function draw(){
+ctx.clearRect(0,0,c.width,c.height);
+p.forEach(x=>{
+ctx.beginPath();
+ctx.arc(x.x,x.y,x.r,0,6.28);
+ctx.fillStyle="white";
+ctx.fill();
+x.y+=0.3;
+if(x.y>c.height)x.y=0;
+});
+requestAnimationFrame(draw);
+}
 draw();
+
+window.addEventListener("resize",()=>{
+c.width=innerWidth;
+c.height=innerHeight;
+heatCanvas.width=innerWidth;
+heatCanvas.height=innerHeight;
+});
 
 // AI QUESTION
 async function generateQuestion(){
@@ -226,11 +295,18 @@ let t=document.getElementById("topicInput").value;
 if(!t)return;
 document.getElementById("questionBox").textContent="Loading...";
 try{
-let r=await fetch("https://revstudy-ai--emangchat.replit.app",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({topic:t})});
+let r=await fetch("https://revstudy-ai--emangchat.replit.app",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({topic:t})
+});
 let d=await r.json();
 document.getElementById("questionBox").textContent=d.question||"None";
-}catch{document.getElementById("questionBox").textContent="Error";}
+}catch{
+document.getElementById("questionBox").textContent="Error";
 }
+}
+
 </script>
 
 </body>
