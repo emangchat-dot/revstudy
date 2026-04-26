@@ -15,19 +15,92 @@
     <a class="back-btn" href="index.html">⬅ Back to Home</a>
   </header>
 
-  <!-- AI TUTOR SECTION -->
-  <section class="card glass">
-    <h2>🧠 AI Tutor</h2>
+ <script>
+  // ---------------- AI TUTOR (Hugging Face API) ----------------
+  async function askAI() {
+    let q = document.getElementById("question").value;
+    if (!q) return;
 
-    <div class="input-group">
-      <input id="question" placeholder="Ask anything (math, science, etc)...">
-      <button onclick="askAI()">Ask</button>
-    </div>
+    document.getElementById("response").innerText = "Thinking... 🤖";
 
-    <div class="output" id="response">
-      Your answer will appear here...
-    </div>
-  </section>
+    try {
+      const response = await fetch(
+        "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2",
+        {
+          method: "POST",
+          headers: {
+            "Authorization": "Bearer YOUR_HUGGINGFACE_API_KEY",
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            inputs:
+              "You are a helpful tutor. Explain step by step in a simple way:\n\n" +
+              q
+          })
+        }
+      );
+
+      const data = await response.json();
+
+      let answer =
+        data?.[0]?.generated_text ||
+        data?.generated_text ||
+        data?.error ||
+        "No response from AI";
+
+      document.getElementById("response").innerText = "🤖 " + answer;
+
+    } catch (error) {
+      document.getElementById("response").innerText =
+        "⚠️ Error connecting to AI. Check API key or internet.";
+    }
+  }
+
+  // ---------------- FLASHCARDS ----------------
+  let flashcards = JSON.parse(localStorage.getItem("flashcards") || "[]");
+
+  function addFlashcard() {
+    let front = document.getElementById("front").value;
+    let back = document.getElementById("back").value;
+
+    if (!front || !back) return;
+
+    flashcards.push({ front, back });
+    localStorage.setItem("flashcards", JSON.stringify(flashcards));
+
+    document.getElementById("front").value = "";
+    document.getElementById("back").value = "";
+
+    renderFlashcards();
+  }
+
+  function flip(i) {
+    let card = document.getElementById("card-" + i);
+
+    if (card.dataset.flipped === "true") {
+      card.innerText = "❓ " + flashcards[i].front;
+      card.dataset.flipped = "false";
+    } else {
+      card.innerText = "💡 " + flashcards[i].back;
+      card.dataset.flipped = "true";
+    }
+  }
+
+  function renderFlashcards() {
+    let list = document.getElementById("flashcardList");
+    list.innerHTML = "";
+
+    flashcards.forEach((c, i) => {
+      list.innerHTML += `
+        <div class="flashcard" id="card-${i}" onclick="flip(${i})" data-flipped="false">
+          ❓ ${c.front}
+        </div>
+      `;
+    });
+  }
+
+  renderFlashcards();
+</script>
 
   <!-- FLASHCARDS SECTION -->
   <section class="card glass">
