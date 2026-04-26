@@ -23,15 +23,17 @@ async function askAI() {
 
   document.getElementById("response").innerText = "Thinking... 🤖";
 
-  try {
-    const response = await fetch(
-      "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2",
-      {
-        method: "POST",
-        headers: {
-          "Authorization": "Bearer YOUR_NEW_TOKEN_HERE",
-          "Content-Type": "application/json"
-        },
+  const res = await fetch("http://localhost:3000/ask", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ question: q })
+  });
+
+  const data = await res.json();
+
+  document.getElementById("response").innerText =
+    "🤖 " + data.answer;
+}
         body: JSON.stringify({
           inputs:
             "You are a helpful tutor. Explain step by step in a simple way:\n\n" +
