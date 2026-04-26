@@ -21,18 +21,26 @@ async function askAI() {
   let q = document.getElementById("question").value;
   if (!q) return;
 
-  document.getElementById("response").innerText = "Thinking... 🤖";
+  document.getElementById("response").innerText = "Thinking... 📚";
 
   const res = await fetch("http://localhost:3000/ask", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ question: q })
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      question:
+        "You are an academic tutor for high school students. " +
+        "Only answer academic questions (math, science, english, history). " +
+        "Explain clearly step-by-step, keep it simple, and show reasoning when needed.\n\n" +
+        "Question: " + q
+    })
   });
 
   const data = await res.json();
 
   document.getElementById("response").innerText =
-    "🤖 " + data.answer;
+    "📚 " + data.answer;
 }
         body: JSON.stringify({
           inputs:
