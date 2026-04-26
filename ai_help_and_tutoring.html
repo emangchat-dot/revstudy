@@ -5,44 +5,57 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 
-<body>
+<body class="page">
 
-  <h1>🤖 AI Tutoring & Help</h1>
+  <!-- HEADER -->
+  <header class="header">
+    <h1>🤖 AI Tutoring & Help</h1>
+    <p>Ask questions, learn faster, and build flashcards</p>
 
-  <!-- AI TUTOR -->
-  <div class="card">
-    <h2>AI Tutor</h2>
+    <a class="back-btn" href="index.html">⬅ Back to Home</a>
+  </header>
 
-    <input id="question" placeholder="Ask a question...">
-    <button onclick="askAI()">Ask AI</button>
+  <!-- AI TUTOR SECTION -->
+  <section class="card glass">
+    <h2>🧠 AI Tutor</h2>
 
-    <p id="response"></p>
-  </div>
+    <div class="input-group">
+      <input id="question" placeholder="Ask anything (math, science, etc)...">
+      <button onclick="askAI()">Ask</button>
+    </div>
 
-  <!-- FLASHCARDS -->
-  <div class="card">
+    <div class="output" id="response">
+      Your answer will appear here...
+    </div>
+  </section>
+
+  <!-- FLASHCARDS SECTION -->
+  <section class="card glass">
     <h2>📚 Flashcards</h2>
 
-    <input id="front" placeholder="Question (Front)">
-    <input id="back" placeholder="Answer (Back)">
-    <button onclick="addFlashcard()">Add Flashcard</button>
+    <div class="input-grid">
+      <input id="front" placeholder="Question">
+      <input id="back" placeholder="Answer">
+    </div>
 
-    <div id="flashcardList"></div>
-  </div>
+    <button onclick="addFlashcard()">+ Add Flashcard</button>
 
+    <div id="flashcardList" class="flashcard-grid"></div>
+  </section>
+
+  <!-- JAVASCRIPT -->
   <script>
-    // ---------------- AI TUTOR (simple placeholder logic) ----------------
+    // ---------------- AI TUTOR (simple mock version) ----------------
     function askAI() {
       let q = document.getElementById("question").value;
 
       if (!q) return;
 
-      // simple mock AI response (you can upgrade later to real API)
       document.getElementById("response").innerText =
-        "🤖 AI Tutor: Let's break this down → " + q;
+        "🤖 AI Tutor: Let’s break this down → " + q;
     }
 
-    // ---------------- FLASHCARDS SYSTEM ----------------
+    // ---------------- FLASHCARDS ----------------
     let flashcards = JSON.parse(localStorage.getItem("flashcards") || "[]");
 
     function addFlashcard() {
@@ -60,27 +73,29 @@
       renderFlashcards();
     }
 
+    function flip(i) {
+      let card = document.getElementById("card-" + i);
+
+      if (card.dataset.flipped === "true") {
+        card.innerText = "❓ " + flashcards[i].front;
+        card.dataset.flipped = "false";
+      } else {
+        card.innerText = "💡 " + flashcards[i].back;
+        card.dataset.flipped = "true";
+      }
+    }
+
     function renderFlashcards() {
       let list = document.getElementById("flashcardList");
       list.innerHTML = "";
 
-      flashcards.forEach((card, i) => {
+      flashcards.forEach((c, i) => {
         list.innerHTML += `
-          <div class="flashcard" onclick="flipCard(${i})" id="card-${i}">
-            ❓ ${card.front}
+          <div class="flashcard" id="card-${i}" onclick="flip(${i})" data-flipped="false">
+            ❓ ${c.front}
           </div>
         `;
       });
-    }
-
-    function flipCard(i) {
-      let cardDiv = document.getElementById("card-" + i);
-
-      if (cardDiv.innerText.includes("❓")) {
-        cardDiv.innerText = "💡 " + flashcards[i].back;
-      } else {
-        cardDiv.innerText = "❓ " + flashcards[i].front;
-      }
     }
 
     renderFlashcards();
