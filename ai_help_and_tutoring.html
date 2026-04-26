@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI Tutoring & Help</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+  <h1>🤖 AI Tutoring & Help</h1>
+
+  <!-- AI TUTOR -->
+  <div class="card">
+    <h2>AI Tutor</h2>
+
+    <input id="question" placeholder="Ask a question...">
+    <button onclick="askAI()">Ask AI</button>
+
+    <p id="response"></p>
+  </div>
+
+  <!-- FLASHCARDS -->
+  <div class="card">
+    <h2>📚 Flashcards</h2>
+
+    <input id="front" placeholder="Question (Front)">
+    <input id="back" placeholder="Answer (Back)">
+    <button onclick="addFlashcard()">Add Flashcard</button>
+
+    <div id="flashcardList"></div>
+  </div>
+
+  <script>
+    // ---------------- AI TUTOR (simple placeholder logic) ----------------
+    function askAI() {
+      let q = document.getElementById("question").value;
+
+      if (!q) return;
+
+      // simple mock AI response (you can upgrade later to real API)
+      document.getElementById("response").innerText =
+        "🤖 AI Tutor: Let's break this down → " + q;
+    }
+
+    // ---------------- FLASHCARDS SYSTEM ----------------
+    let flashcards = JSON.parse(localStorage.getItem("flashcards") || "[]");
+
+    function addFlashcard() {
+      let front = document.getElementById("front").value;
+      let back = document.getElementById("back").value;
+
+      if (!front || !back) return;
+
+      flashcards.push({ front, back });
+      localStorage.setItem("flashcards", JSON.stringify(flashcards));
+
+      document.getElementById("front").value = "";
+      document.getElementById("back").value = "";
+
+      renderFlashcards();
+    }
+
+    function renderFlashcards() {
+      let list = document.getElementById("flashcardList");
+      list.innerHTML = "";
+
+      flashcards.forEach((card, i) => {
+        list.innerHTML += `
+          <div class="flashcard" onclick="flipCard(${i})" id="card-${i}">
+            ❓ ${card.front}
+          </div>
+        `;
+      });
+    }
+
+    function flipCard(i) {
+      let cardDiv = document.getElementById("card-" + i);
+
+      if (cardDiv.innerText.includes("❓")) {
+        cardDiv.innerText = "💡 " + flashcards[i].back;
+      } else {
+        cardDiv.innerText = "❓ " + flashcards[i].front;
+      }
+    }
+
+    renderFlashcards();
+  </script>
+
+</body>
+</html>
