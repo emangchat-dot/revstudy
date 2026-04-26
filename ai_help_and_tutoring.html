@@ -1,85 +1,137 @@
-<script>
-document.addEventListener("DOMContentLoaded", function () {
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>AI Tutoring & Help</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
 
-  // ---------------- AI TUTOR ----------------
-  window.askAI = async function () {
-    let q = document.getElementById("question");
-    let responseBox = document.getElementById("response");
+<body class="page">
 
-    if (!q || !responseBox) return;
-    if (!q.value) return;
+  <!-- HEADER -->
+  <header class="header">
+    <h1>🤖 AI Tutoring & Help</h1>
+    <p>Ask questions, learn faster, and build flashcards</p>
 
-    responseBox.innerText = "Thinking... 📚";
+    <a class="back-btn" href="index.html">⬅ Back to Home</a>
+  </header>
 
-    try {
-      const res = await fetch("http://localhost:3000/ask", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          question:
-            "You are an academic tutor. Explain step-by-step clearly:\n\n" + q.value
-        })
+  <!-- AI SECTION -->
+  <section class="card glass">
+    <h2>🧠 AI Tutor</h2>
+
+    <div class="input-group">
+      <input id="question" placeholder="Ask anything (math, science, etc)...">
+      <button onclick="askAI()">Ask</button>
+    </div>
+
+    <div class="output" id="response">
+      Your answer will appear here...
+    </div>
+  </section>
+
+  <!-- FLASHCARDS SECTION -->
+  <section class="card glass">
+    <h2>📚 Flashcards</h2>
+
+    <div class="input-grid">
+      <input id="front" placeholder="Question">
+      <input id="back" placeholder="Answer">
+    </div>
+
+    <button onclick="addFlashcard()">+ Add Flashcard</button>
+
+    <div id="flashcardList" class="flashcard-grid"></div>
+  </section>
+
+  <!-- JAVASCRIPT (ALWAYS AT BOTTOM) -->
+  <script>
+  document.addEventListener("DOMContentLoaded", function () {
+
+    // ---------------- AI TUTOR ----------------
+    window.askAI = async function () {
+      let q = document.getElementById("question");
+      let responseBox = document.getElementById("response");
+
+      if (!q || !responseBox) return;
+      if (!q.value) return;
+
+      responseBox.innerText = "Thinking... 📚";
+
+      try {
+        const res = await fetch("http://localhost:3000/ask", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            question:
+              "You are an academic tutor. Explain step-by-step clearly:\n\n" + q.value
+          })
+        });
+
+        const data = await res.json();
+
+        responseBox.innerText =
+          "📚 " + (data.answer || "No response");
+
+      } catch (err) {
+        responseBox.innerText = "⚠️ AI server not running";
+        console.error(err);
+      }
+    };
+
+    // ---------------- FLASHCARDS ----------------
+    let flashcards = JSON.parse(localStorage.getItem("flashcards") || "[]");
+
+    window.addFlashcard = function () {
+      let front = document.getElementById("front");
+      let back = document.getElementById("back");
+
+      if (!front || !back) return;
+      if (!front.value || !back.value) return;
+
+      flashcards.push({ front: front.value, back: back.value });
+      localStorage.setItem("flashcards", JSON.stringify(flashcards));
+
+      front.value = "";
+      back.value = "";
+
+      renderFlashcards();
+    };
+
+    window.flip = function (i) {
+      let card = document.getElementById("card-" + i);
+      if (!card) return;
+
+      if (card.dataset.flipped === "true") {
+        card.innerText = "❓ " + flashcards[i].front;
+        card.dataset.flipped = "false";
+      } else {
+        card.innerText = "💡 " + flashcards[i].back;
+        card.dataset.flipped = "true";
+      }
+    };
+
+    function renderFlashcards() {
+      let list = document.getElementById("flashcardList");
+      if (!list) return;
+
+      list.innerHTML = "";
+
+      flashcards.forEach((c, i) => {
+        list.innerHTML += `
+          <div class="flashcard" id="card-${i}" onclick="flip(${i})" data-flipped="false">
+            ❓ ${c.front}
+          </div>
+        `;
       });
-
-      const data = await res.json();
-
-      responseBox.innerText =
-        "📚 " + (data.answer || "No response");
-    } catch (err) {
-      responseBox.innerText = "⚠️ AI server not running";
-      console.error(err);
     }
-  };
-
-  // ---------------- FLASHCARDS ----------------
-  let flashcards = JSON.parse(localStorage.getItem("flashcards") || "[]");
-
-  window.addFlashcard = function () {
-    let front = document.getElementById("front");
-    let back = document.getElementById("back");
-
-    if (!front || !back) return;
-    if (!front.value || !back.value) return;
-
-    flashcards.push({ front: front.value, back: back.value });
-    localStorage.setItem("flashcards", JSON.stringify(flashcards));
-
-    front.value = "";
-    back.value = "";
 
     renderFlashcards();
-  };
 
-  window.flip = function (i) {
-    let card = document.getElementById("card-" + i);
-    if (!card) return;
+  });
+  </script>
 
-    if (card.dataset.flipped === "true") {
-      card.innerText = "❓ " + flashcards[i].front;
-      card.dataset.flipped = "false";
-    } else {
-      card.innerText = "💡 " + flashcards[i].back;
-      card.dataset.flipped = "true";
-    }
-  };
-
-  function renderFlashcards() {
-    let list = document.getElementById("flashcardList");
-
-    if (!list) return; // 🔥 FIX YOUR ERROR
-
-    list.innerHTML = "";
-
-    flashcards.forEach((c, i) => {
-      list.innerHTML += `
-        <div class="flashcard" id="card-${i}" onclick="flip(${i})" data-flipped="false">
-          ❓ ${c.front}
-        </div>
-      `;
-    });
-  }
-
-  renderFlashcards();
-
-});
-</script>
+</body>
+</html>
