@@ -18,7 +18,11 @@ body {
     height:100%;
 }
 
-#bg { z-index:-3; background-size:cover; }
+#bg { 
+    z-index:-3; 
+    background-size:cover; 
+}
+
 #gradient {
     z-index:-2;
     background:linear-gradient(-45deg,#667eea,#764ba2,#6dd5ed,#2193b0);
@@ -43,10 +47,25 @@ canvas { z-index:-1; }
     border-radius:15px;
 }
 
-button { padding:10px; border:none; border-radius:8px; cursor:pointer; }
-input { padding:8px; border-radius:8px; border:none; width:80%; }
+button { 
+    padding:10px; 
+    border:none; 
+    border-radius:8px; 
+    cursor:pointer; 
+}
 
-iframe, audio { width:100%; border-radius:10px; margin-top:10px; }
+input { 
+    padding:8px; 
+    border-radius:8px; 
+    border:none; 
+    width:80%; 
+}
+
+iframe, audio { 
+    width:100%; 
+    border-radius:10px; 
+    margin-top:10px; 
+}
 </style>
 </head>
 
@@ -83,7 +102,7 @@ iframe, audio { width:100%; border-radius:10px; margin-top:10px; }
 
 <!-- SPOTIFY -->
 <div class="box">
-<h3>🎧 Lofi</h3>
+<h3>🎧 Lofi Spotify</h3>
 <button onclick="setLofi(1)">Chill</button>
 <button onclick="setLofi(2)">Sleep</button>
 <button onclick="setLofi(3)">Focus</button>
@@ -97,10 +116,18 @@ iframe, audio { width:100%; border-radius:10px; margin-top:10px; }
 <button onclick="loadPortal()">Go</button>
 </div>
 
-<!-- YOUTUBE -->
+<!-- YOUTUBE (FIXED LIVE STREAM) -->
 <div class="box">
-<h3>📺 YouTube</h3>
-<iframe src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&mute=1&loop=1&playlist=jfKfPfyJRdk&controls=0"></iframe>
+<h3>📺 Lofi Girl Live</h3>
+
+<iframe
+    src="https://www.youtube.com/embed/live_stream?channel=UCSJ4gkVC6NrvII8umztf0Ow&autoplay=1&mute=1"
+    height="315"
+    frameborder="0"
+    allow="autoplay; encrypted-media"
+    allowfullscreen>
+</iframe>
+
 </div>
 
 <!-- RADIO -->
@@ -143,9 +170,11 @@ iframe, audio { width:100%; border-radius:10px; margin-top:10px; }
 <script>
 
 // CLOCK
-setInterval(()=>{document.getElementById("clock").textContent=new Date().toLocaleTimeString()},1000);
+setInterval(()=>{
+document.getElementById("clock").textContent=new Date().toLocaleTimeString();
+},1000);
 
-// TIMER (FIXED)
+// TIMER
 let t=1500,i=null;
 
 function startTimer(){
@@ -169,28 +198,29 @@ function setLofi(x){
 let p=[
 "https://open.spotify.com/embed/playlist/37i9dQZF1DX8Uebhn9wzrS",
 "https://open.spotify.com/embed/playlist/37i9dQZF1DWZd79rJ6a7lp",
-"https://open.spotify.com/embed/playlist/37i9dQZF1DX3PFzdbtx1Us"];
+"https://open.spotify.com/embed/playlist/37i9dQZF1DX3PFzdbtx1Us"
+];
 document.getElementById("spotifyPlayer").src=p[x-1];
 }
 setLofi(1);
 
-// PORTAL (FIXED)
+// PORTAL
 function loadPortal(){
 let url=document.getElementById("portalUrl").value.trim();
 if(!url)return;
 if(!url.startsWith("http")) url="https://"+url;
 
-let existing=document.getElementById("portalFrame");
-if(!existing){
-  let frame=document.createElement("iframe");
-  frame.id="portalFrame";
-  frame.style.width="100%";
-  frame.style.height="400px";
-  frame.style.marginTop="10px";
-  document.querySelector(".box:nth-of-type(5)").appendChild(frame);
-  existing=frame;
+let frame=document.getElementById("portalFrame");
+
+if(!frame){
+frame=document.createElement("iframe");
+frame.id="portalFrame";
+frame.style.width="100%";
+frame.style.height="400px";
+document.querySelectorAll(".box")[4].appendChild(frame);
 }
-existing.src=url;
+
+frame.src=url;
 }
 
 // RADIO
@@ -200,9 +230,10 @@ r.src=u;
 r.play();
 }
 
-// HEATMAP (VISUAL FIXED)
+// HEATMAP
 const heatCanvas=document.getElementById("heatCanvas");
 const hctx=heatCanvas.getContext("2d");
+
 heatCanvas.width=innerWidth;
 heatCanvas.height=innerHeight;
 
@@ -216,15 +247,18 @@ hctx.fill();
 // FUTURE
 function predictFuture(){
 let d=JSON.parse(localStorage.getItem("studyData"))||{};
-let t=0,c=0;for(let x in d){t+=d[x];c++;}
+let t=0,c=0;
+for(let x in d){t+=d[x];c++;}
 let avg=c?t/c:0;
-document.getElementById("futureText").textContent="Next month: "+Math.round(avg*30)+" mins";
+document.getElementById("futureText").textContent=
+"Next month: "+Math.round(avg*30)+" mins";
 }
 
 // FEEDBACK
 function generateFeedback(){
 let xp=localStorage.getItem("xp")||0;
-document.getElementById("aiFeedback").textContent=xp<50?"Start!":xp<150?"Good!":"Elite!";
+document.getElementById("aiFeedback").textContent=
+xp<50?"Start!":xp<150?"Good!":"Elite!";
 }
 
 // FUN FACT
@@ -232,8 +266,8 @@ const facts=[
 "Honey never spoils",
 "Octopus has 3 hearts",
 "Bananas are berries",
-"Sharks older than trees",
-"Brain makes electricity"
+"Sharks are older than trees",
+"Brains generate electricity"
 ];
 
 function showFunFact(){
@@ -259,14 +293,18 @@ document.getElementById("bg").style.backgroundImage=`url('${bg[0]}')`;
 
 // PARTICLES
 const c=document.getElementById("particles"),ctx=c.getContext("2d");
-c.width=innerWidth;c.height=innerHeight;
+
+c.width=innerWidth;
+c.height=innerHeight;
 
 let p=[];
-for(let i=0;i<60;i++)p.push({
+for(let i=0;i<60;i++){
+p.push({
 x:Math.random()*c.width,
 y:Math.random()*c.height,
 r:Math.random()*2
 });
+}
 
 function draw(){
 ctx.clearRect(0,0,c.width,c.height);
@@ -293,15 +331,19 @@ heatCanvas.height=innerHeight;
 async function generateQuestion(){
 let t=document.getElementById("topicInput").value;
 if(!t)return;
+
 document.getElementById("questionBox").textContent="Loading...";
+
 try{
-let r=await fetch("https://revstudy-ai--emangchat.replit.app",{
+let r=await fetch("https://revstudy-ai--emangchat.replit.app/",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({topic:t})
 });
+
 let d=await r.json();
-document.getElementById("questionBox").textContent=d.question||"None";
+document.getElementById("questionBox").textContent=
+d.question||"No question returned";
 }catch{
 document.getElementById("questionBox").textContent="Error";
 }
