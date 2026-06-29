@@ -1,146 +1,506 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <title>AI Tutoring & Help</title>
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RevStudy • AI Tutoring & Help</title>
+
+    <link rel="stylesheet" href="styles.css">
 </head>
 
 <body class="page">
 
-  <!-- HEADER -->
-  <header class="header">
+<header class="header">
+
     <h1>🤖 AI Tutoring & Help</h1>
-    <p>Ask questions, learn faster, and build flashcards</p>
 
-    <a class="back-btn" href="index.html">⬅ Back to Home</a>
-  </header>
+    <p>Ask questions, learn faster and build flashcards.</p>
 
-  <!-- AI SECTION -->
-  <section class="card glass">
+    <a href="index.html" class="back-btn">⬅ Back to Home</a>
+
+</header>
+
+
+<!-- ================= AI TUTOR ================= -->
+
+<section class="card glass">
+
     <h2>🧠 AI Tutor</h2>
 
     <div class="input-group">
-      <input id="question" placeholder="Ask anything (math, science, etc)...">
-      <button onclick="askAI()">Ask</button>
+
+        <input
+            id="question"
+            type="text"
+            placeholder="Ask any question..."
+        >
+
+        <button onclick="askAI()">
+            Ask
+        </button>
+
     </div>
+
+    <br>
+
+    <label>
+
+        Difficulty:
+
+        <select id="level">
+
+            <option value="beginner">Beginner</option>
+
+            <option value="intermediate">Intermediate</option>
+
+            <option value="advanced">Advanced</option>
+
+        </select>
+
+    </label>
+
+    <br><br>
 
     <div class="output" id="response">
-      Your answer will appear here...
-    </div>
-  </section>
 
-  <!-- FLASHCARDS SECTION -->
-  <section class="card glass">
+        Your AI answer will appear here.
+
+    </div>
+
+    <br>
+
+    <div class="input-group">
+
+        <button onclick="copyAnswer()">
+            📋 Copy Answer
+        </button>
+
+        <button onclick="saveAnswerAsFlashcard()">
+            📚 Save As Flashcard
+        </button>
+
+    </div>
+
+</section>
+
+
+
+<!-- ================= FLASHCARDS ================= -->
+
+<section class="card glass">
+
     <h2>📚 Flashcards</h2>
 
     <div class="input-grid">
-      <input id="front" placeholder="Question">
-      <input id="back" placeholder="Answer">
+
+        <input
+            id="front"
+            placeholder="Question"
+        >
+
+        <input
+            id="back"
+            placeholder="Answer"
+        >
+
     </div>
 
-    <button onclick="addFlashcard()">+ Add Flashcard</button>
+    <br>
 
-    <div id="flashcardList" class="flashcard-grid"></div>
-  </section>
+    <button onclick="addFlashcard()">
 
-  <script>
+        ➕ Add Flashcard
 
-  document.addEventListener("DOMContentLoaded", function () {
+    </button>
 
-    // ================= AI TUTOR =================
-    window.askAI = async function () {
-      let q = document.getElementById("question");
-      let responseBox = document.getElementById("response");
+    <button onclick="clearFlashcards()">
 
-      if (!q || !q.value.trim()) return;
+        🗑 Clear All
 
-      responseBox.innerText = "Thinking... 📚";
+    </button>
 
-      try {
-        const res = await fetch("https://revstudy-ai--emangchat.replit.app/ask", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            question: q.value.trim(),
-            level: "beginner"
-          })
+    <br><br>
+
+    <div
+        id="flashcardList"
+        class="flashcard-grid"
+    >
+
+    </div>
+
+</section>
+
+
+<script>
+
+//========================
+// CONFIG
+//========================
+
+// CHANGE THIS TO YOUR VERCEL API
+
+const API_URL =
+"https://website-api-integration.vercel.app/api/ask";
+
+
+//========================
+// VARIABLES
+//========================
+
+let flashcards =
+JSON.parse(
+localStorage.getItem("flashcards") || "[]"
+);
+//========================
+// AI TUTOR
+//========================
+
+async function askAI() {
+
+    const question =
+        document.getElementById("question");
+
+    const level =
+        document.getElementById("level");
+
+    const response =
+        document.getElementById("response");
+
+    const text = question.value.trim();
+
+    if (!text) {
+
+        response.innerText =
+            "Please enter a question.";
+
+        return;
+
+    }
+
+    response.innerText = "Thinking... 📚";
+
+    try {
+
+        const res = await fetch(API_URL, {
+
+            method: "POST",
+
+            headers: {
+
+                "Content-Type": "application/json"
+
+            },
+
+            body: JSON.stringify({
+
+                question: text,
+
+                level: level.value
+
+            })
+
         });
 
         if (!res.ok) {
-          throw new Error("Server error: " + res.status);
+
+            throw new Error(
+                "Server Error " + res.status
+            );
+
         }
 
-        const data = await res.json();
+        const data =
+            await res.json();
 
-        responseBox.innerText = data.answer || "No response";
+        response.innerText =
+            data.answer ||
+            "No response.";
 
-      } catch (err) {
-        console.error(err);
-        responseBox.innerText = "⚠️ AI temporarily unavailable. Try again later.";
-      }
-    };
-
-    // ================= FLASHCARDS =================
-    let flashcards = JSON.parse(localStorage.getItem("flashcards") || "[]");
-
-    window.addFlashcard = function () {
-      let front = document.getElementById("front");
-      let back = document.getElementById("back");
-
-      if (!front.value.trim() || !back.value.trim()) return;
-
-      flashcards.push({
-        front: front.value.trim(),
-        back: back.value.trim()
-      });
-
-      localStorage.setItem("flashcards", JSON.stringify(flashcards));
-
-      front.value = "";
-      back.value = "";
-
-      renderFlashcards();
-    };
-
-    window.flip = function (i) {
-      let card = document.getElementById("card-" + i);
-      if (!card) return;
-
-      if (card.dataset.flipped === "true") {
-        card.innerText = "❓ " + flashcards[i].front;
-        card.dataset.flipped = "false";
-      } else {
-        card.innerText = "💡 " + flashcards[i].back;
-        card.dataset.flipped = "true";
-      }
-    };
-
-    function renderFlashcards() {
-      let list = document.getElementById("flashcardList");
-      if (!list) return;
-
-      list.innerHTML = "";
-
-      flashcards.forEach((c, i) => {
-        list.innerHTML += `
-          <div class="flashcard"
-               id="card-${i}"
-               onclick="flip(${i})"
-               data-flipped="false">
-            ❓ ${c.front}
-          </div>
-        `;
-      });
     }
+
+    catch (err) {
+
+        console.error(err);
+
+        response.innerText =
+            "⚠️ Unable to contact the AI server.";
+
+    }
+
+}
+
+
+//========================
+// ENTER TO ASK
+//========================
+
+document.addEventListener("keydown", function(e){
+
+    if(
+        e.key === "Enter" &&
+        document.activeElement.id === "question"
+    ){
+
+        askAI();
+
+    }
+
+});
+
+
+//========================
+// COPY ANSWER
+//========================
+
+function copyAnswer(){
+
+    const answer =
+        document.getElementById("response").innerText;
+
+    navigator.clipboard.writeText(answer);
+
+    alert("Answer copied!");
+
+}
+
+
+
+//========================
+// SAVE AI ANSWER
+//========================
+
+function saveAnswerAsFlashcard(){
+
+    const q =
+        document.getElementById("question").value.trim();
+
+    const a =
+        document.getElementById("response").innerText.trim();
+
+    if(!q || !a) return;
+
+    flashcards.push({
+
+        front:q,
+
+        back:a
+
+    });
+
+    saveFlashcards();
 
     renderFlashcards();
 
-  });
+    alert("Flashcard saved!");
 
-  </script>
+}
+
+
+
+//========================
+// FLASHCARDS
+//========================
+
+function addFlashcard(){
+
+    const front =
+        document.getElementById("front");
+
+    const back =
+        document.getElementById("back");
+
+    if(
+        !front.value.trim() ||
+        !back.value.trim()
+    ) return;
+
+    flashcards.push({
+
+        front:front.value.trim(),
+
+        back:back.value.trim()
+
+    });
+
+    front.value="";
+
+    back.value="";
+
+    saveFlashcards();
+
+    renderFlashcards();
+
+}
+
+
+
+//========================
+// SAVE
+//========================
+
+function saveFlashcards(){
+
+    localStorage.setItem(
+
+        "flashcards",
+
+        JSON.stringify(flashcards)
+
+    );
+
+}
+
+
+
+//========================
+// FLIP
+//========================
+
+function flip(i){
+
+    const card =
+        document.getElementById("card-"+i);
+
+    if(
+        card.dataset.side==="front"
+    ){
+
+        card.innerHTML=`
+
+            <strong>💡 Answer</strong>
+
+            <br><br>
+
+            ${flashcards[i].back}
+
+        `;
+
+        card.dataset.side="back";
+
+    }
+
+    else{
+
+        card.innerHTML=`
+
+            <strong>❓ Question</strong>
+
+            <br><br>
+
+            ${flashcards[i].front}
+
+        `;
+
+        card.dataset.side="front";
+
+    }
+
+}
+
+
+
+//========================
+// DELETE
+//========================
+
+function deleteFlashcard(i){
+
+    flashcards.splice(i,1);
+
+    saveFlashcards();
+
+    renderFlashcards();
+
+}
+
+
+
+//========================
+// CLEAR
+//========================
+
+function clearFlashcards(){
+
+    if(
+        !confirm(
+            "Delete all flashcards?"
+        )
+    ) return;
+
+    flashcards=[];
+
+    saveFlashcards();
+
+    renderFlashcards();
+
+}
+//========================
+// RENDER FLASHCARDS
+//========================
+
+function renderFlashcards(){
+
+    const list =
+        document.getElementById("flashcardList");
+
+    list.innerHTML = "";
+
+    if(flashcards.length === 0){
+
+        list.innerHTML = `
+            <p style="text-align:center;opacity:0.7;">
+                No flashcards yet.<br>
+                Create one above or save an AI answer.
+            </p>
+        `;
+
+        return;
+
+    }
+
+    flashcards.forEach((card,i)=>{
+
+        list.innerHTML += `
+
+        <div
+            class="flashcard"
+            id="card-${i}"
+            data-side="front"
+            onclick="flip(${i})">
+
+            <strong>❓ Question</strong>
+
+            <br><br>
+
+            ${card.front}
+
+            <br><br>
+
+            <button
+                onclick="event.stopPropagation(); deleteFlashcard(${i});">
+
+                🗑 Delete
+
+            </button>
+
+        </div>
+
+        `;
+
+    });
+
+}
+
+
+
+//========================
+// LOAD FLASHCARDS
+//========================
+
+renderFlashcards();
+
+</script>
 
 </body>
 </html>
